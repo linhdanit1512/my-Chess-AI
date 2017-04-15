@@ -1,0 +1,22 @@
+tham khảo: https://en.wikipedia.org/wiki/Chess
+
+Tên				Mô tả
+
+ChessBoard: 	Bàn cờ
+Point:			Điểm
+Piece : 		Quân cờ
+							Kí hiệu	Điểm
+King: 			Quân vua	K		vô giá
+Queen: 			Quân hậu	Q		9đ
+Rook: 			Quân xe		R		5đ
+Bishop:			Quân tượng	B		3đ
+Knight:			Quân mã		N		3đ
+Pawn:			Quân chốt			1đ
+
+Voluntary resignation: Tự nguyện nhận thua
+Castling:		Nhập thành
+Promotion:		Phong chốt
+Checkmate:		Chiếu vua
+Draw:			Hòa cờ
+En passant:		Bắt chốt qua đường
+Check:			Chiếu vua
