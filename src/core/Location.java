@@ -48,6 +48,43 @@ public class Location {
 		this.y = y;
 	}
 
+	public int getXString() {
+		return 8 - x;
+	}
+
+	public char getYString() {
+		char result = 0;
+		switch (y) {
+		case 0:
+			result = 'a';
+			break;
+		case 1:
+			result = 'b';
+			break;
+		case 2:
+			result = 'c';
+			break;
+		case 3:
+			result = 'd';
+			break;
+		case 4:
+			result = 'e';
+			break;
+		case 5:
+			result = 'f';
+			break;
+		case 6:
+			result = 'g';
+			break;
+		case 7:
+			result = 'h';
+			break;
+		default:
+			break;
+		}
+		return result;
+	}
+
 	/**
 	 * 
 	 * @param locat:
@@ -95,37 +132,8 @@ public class Location {
 	}
 
 	public String toWordString() {
-		String locat = "";
-		switch (y) {
-		case 0:
-			locat = "A" + (int) (8 - x);
-			break;
-		case 1:
-			locat = "B" + (int) (8 - x);
-			break;
-		case 2:
-			locat = "C" + (int) (8 - x);
-			break;
-		case 3:
-			locat = "D" + (int) (8 - x);
-			break;
-		case 4:
-			locat = "E" + (int) (8 - x);
-			break;
-		case 5:
-			locat = "F" + (int) (8 - x);
-			break;
-		case 6:
-			locat = "G" + (int) (8 - x);
-			break;
-		case 7:
-			locat = "H" + (int) (8 - x);
-			break;
-		default:
-			break;
-		}
-
-		return locat;
+		
+		return ""+getYString()+getXString();
 	}
 
 	@Override

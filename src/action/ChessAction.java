@@ -1,9 +1,11 @@
 package action;
 
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Stack;
 
+import chess.ColorPiece;
 import chess.Piece;
 import core.ChessBoard;
 
@@ -22,20 +24,24 @@ public class ChessAction implements Observer {
 
 	/**
 	 * 
-	 * @param move: nuoc di
-	 * @return: quan co an duoc.
+	 * @param move:
+	 *            nuoc di
+	 * @return:
 	 * 
-	 * null: khong an quan
 	 */
-	public Piece move(Move move) {
+	public boolean move(Move move) {
+		if (move == null)
+			return false;
 		if (move.getFrom().getLocation() == move.getTo())
-			return null;
+			return false;
 		if (move.getFrom().getRule().getRealLocationCanMove().contains(move.getTo())) {
 			moves.push(move);
-			return board.getPieceAt(move.getTo());
+			board.setPieceAtLocation(move.getTo(), move.getFrom());
+			board.removePiece(move.getFrom().getLocation());
+			return true;
 		}
 
-		return null;
+		return false;
 	}
 
 	Stack<Move> undo = new Stack<Move>();
@@ -65,12 +71,20 @@ public class ChessAction implements Observer {
 		if (move.getFrom().getLocation().equals(move.getTo()))
 			return null;
 		StringBuffer sb = new StringBuffer();
-		
-		if(board.getPieceAt(move.getTo())!=null){
-			
-		}else{
-			
+		sb.append(move.getFrom().getAcronym());
+		List<Piece> listTMP = move.getFrom().getRule().getEnemyControlAtLocation(move.getTo(), ColorPiece.BOTH);
+		if (listTMP.size() == 0) {
+		} else if (listTMP.size() == 1) {
+		} else if (listTMP.size() > 1) {
+			sb.append(move.getFrom().getLocation().getYString());
 		}
+		if (board.getPieceAt(move.getTo()) != null) {
+			sb.append("x");
+
+		} else {
+
+		}
+		sb.append(board.getPieceAt(move.getTo()).getLocation().toWordString());
 		return sb.toString();
 	}
 

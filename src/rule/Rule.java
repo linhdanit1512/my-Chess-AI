@@ -74,7 +74,7 @@ public abstract class Rule implements Serializable, Observer {
 	public Map<Piece, List<Location>> getAllListLocationCanMoveWhenCheckmate() {
 		// map chua cac gia tri tra ve
 		Map<Piece, List<Location>> listResult = new HashMap<Piece, List<Location>>();
-		if (ChessGoalTest.player !=0) {
+		if (ChessGoalTest.player != 0) {
 			// lay quan vua dang bi chieu
 			Piece king = board.getKing().get(ChessGoalTest.player);
 			// tim cac quan co dang chieu vua vi co the trong 1 luc co nhieu
@@ -302,11 +302,11 @@ public abstract class Rule implements Serializable, Observer {
 				Piece piece = board.pieceBoard[i][j];
 				// neu vi tri i,j co quan co
 				if (piece != null) {
-					/**
-					 * neu la quan chot thi no chi co the di thang ma ko the an
-					 * thang, cho nen o day neu quan co o o^ cung cot voi vi tr
-					 * location la quan chot thi ko can xet
-					 */
+					//
+					// neu la quan chot thi no chi co the di thang ma ko the an
+					// thang, cho nen o day neu quan co o o^ cung cot voi vi tri
+					// location la quan chot thi ko can xet
+					//
 					if (piece.getType() == PieceType.PAWN && piece.getLocation().getY() == location.getY())
 						continue;
 					// neu quan co o vi tri i,j co the di toi vi tri location
@@ -440,6 +440,5 @@ public abstract class Rule implements Serializable, Observer {
 	public void setLocation(Location location) {
 		this.location = location;
 	}
-	
-	
+
 }

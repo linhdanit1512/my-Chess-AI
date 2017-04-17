@@ -27,6 +27,8 @@ public class ChessBoard extends Observable implements Serializable {
 	public Piece[][] pieceBoard = new Piece[8][8];
 	// Map<Location, Piece> mapPiece = new HashMap<>();
 	public Map<Integer, Piece> mapKing = new HashMap<Integer, Piece>();
+	public List<Piece> listWhiteAlliance = new ArrayList<>();
+	public List<Piece> listBlackAlliance = new ArrayList<>();
 	private int player;
 
 	public ChessBoard(Piece[][] pieceBoard, int player) {
@@ -118,9 +120,15 @@ public class ChessBoard extends Observable implements Serializable {
 			return false;
 		if (piece == null)
 			return false;
-		pieceBoard[location.getX()][location.getY()] = piece;
-		pieceBoard[location.getX()][location.getY()].setLocation(location);
-		pieceBoard[location.getX()][location.getY()].getRule().setLocation(location);
+		int x = location.getX();
+		int y = location.getY();
+		pieceBoard[x][y] = piece;
+		pieceBoard[x][y].setLocation(location);
+		pieceBoard[x][y].getRule().setLocation(location);
+		if (pieceBoard[x][y].getColor() == ColorPiece.WHITE)
+			listWhiteAlliance.add(piece);
+		else if (pieceBoard[x][y].getColor() == ColorPiece.BLACK)
+			listBlackAlliance.add(piece);
 		return true;
 		// this.mapPiece.put(location, piece);
 	}
@@ -130,17 +138,35 @@ public class ChessBoard extends Observable implements Serializable {
 			return;
 		if (piece == null)
 			return;
-		this.pieceBoard[location.getX()][location.getY()] = piece;
-		this.pieceBoard[location.getX()][location.getY()].setLocation(location);
-		this.pieceBoard[location.getX()][location.getY()].getRule().setLocation(location);
-		// this.mapPiece.replace(location, piece);
+		int x = location.getX();
+		int y = location.getY();
+		this.pieceBoard[x][y] = piece;
+		if (pieceBoard[x][y].getColor() == ColorPiece.WHITE)
+			for (Piece a : listWhiteAlliance) {
+				if (a.equals(piece) && a.getLocation() == piece.getLocation())
+					a.setLocation(location);
+			}
+		else if (pieceBoard[x][y].getColor() == ColorPiece.BLACK)
+			for (Piece a : listBlackAlliance) {
+				if (a.equals(piece) && a.getLocation() == piece.getLocation())
+					a.setLocation(location);
+			}
+		this.pieceBoard[x][y].setLocation(location);
+		this.pieceBoard[x][y].getRule().setLocation(location);
 	}
 
 	public void removePiece(Location location) {
 		if (location == null)
 			return;
-		this.pieceBoard[location.getX()][location.getY()] = null;
-		// this.mapPiece.remove(location);
+		int x = location.getX();
+		int y = location.getY();
+		if (pieceBoard[x][y] != null) {
+			if (pieceBoard[x][y].getColor() == ColorPiece.BLACK)
+				listBlackAlliance.remove(getPieceAt(location));
+			else if (pieceBoard[x][y].getColor() == ColorPiece.WHITE)
+				listWhiteAlliance.remove(getPieceAt(location));
+		}
+		this.pieceBoard[x][y] = null;
 	}
 
 	public synchronized void addObserver(Observer observer) {
