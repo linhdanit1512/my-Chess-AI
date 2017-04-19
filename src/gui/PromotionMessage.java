@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -21,12 +20,16 @@ import rule.QueenRule;
 import rule.RookRule;
 
 public class PromotionMessage extends JPanel implements ActionListener {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3708766205764814884L;
 	Piece piece;
 	Piece pawn;
 	CreateButton create = new CreateButton();
 	JButton btnQueen, btnRook, btnBishop, btnKnight;
 
-	public PromotionMessage() {
+	public PromotionMessage(Piece pawn) {
 		this.pawn = pawn;
 		setLayout(new BorderLayout());
 		add(new JLabel("Chon quan co muon tro thanh"), BorderLayout.NORTH);
@@ -54,18 +57,18 @@ public class PromotionMessage extends JPanel implements ActionListener {
 
 	}
 
-	public static void main(String[] args) {
-		JFrame f = new JFrame("test");
-		ChessBoard ob = new ChessBoard();
-		// Piece pawn = new Piece(new Location(1, 7), PieceType.PAWN, 'C', new
-		// PawnRule(ob, new Location(1, 7)),ColorPiece.BLACK, 10,
-		// "blackpawn.png");
-		f.add(new PromotionMessage());
-		f.pack();
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setLocationRelativeTo(null);
-		f.setVisible(true);
-	}
+	// public static void main(String[] args) {
+	// JFrame f = new JFrame("test");
+	// ChessBoard ob = new ChessBoard();
+	// // Piece pawn = new Piece(new Location(1, 7), PieceType.PAWN, 'C', new
+	// // PawnRule(ob, new Location(1, 7)),ColorPiece.BLACK, 10,
+	// // "blackpawn.png");
+	//// f.add(new PromotionMessage());
+	// f.pack();
+	// f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	// f.setLocationRelativeTo(null);
+	// f.setVisible(true);
+	// }
 
 	ChessBoard ob;
 

@@ -1,19 +1,27 @@
 package controller;
 
+import java.awt.Color;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.UIManager;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import action.ChessAction;
 import chess.Piece;
 import core.ChessBoard;
 import core.ChessGoalTest;
 import core.Location;
+import core.Player;
 import gui.Board;
 
 public class BoardController implements MouseListener, MouseMotionListener {
@@ -29,28 +37,63 @@ public class BoardController implements MouseListener, MouseMotionListener {
 	}
 
 	public static void main(String[] args) {
+		try {
+//			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+			UIManager.setLookAndFeel(new NimbusLookAndFeel());
+		} catch (Exception e) {
+		}
 		ChessBoard model = new ChessBoard();
-		Board view = new Board(model);
+		Board view = new Board();
 		new BoardController(model, view);
 	}
 
 	void init() {
 		action = new ChessAction(model);
+		@SuppressWarnings("unused")
 		ChessGoalTest goaltest = new ChessGoalTest(model);
 		lbl = new JLabel();
 		view.add(lbl);
-		view.addMouseListener(this);
-		view.addMouseMotionListener(this);
+		view.pnBoard.addMouseListener(this);
+		view.pnBoard.addMouseMotionListener(this);
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
-				view.btnBoard[i][j].addMouseListener(this);
-				view.btnBoard[i][j].addMouseMotionListener(this);
+				if (model.pieceBoard[i][j] != null) {
+					view.btnBoard[i][j].setIcon(new ImageIcon(model.pieceBoard[i][j].getLinkImg()));
+					view.btnBoard[i][j].addMouseListener(this);
+					view.btnBoard[i][j].addMouseMotionListener(this);
+				}
 			}
 		}
 	}
 
+	private List<Piece> listPiece = new ArrayList<>();
+	Map<Piece, List<Location>> mapResult;
+
+	public Map<Piece, List<Location>> getAllRule() {
+		if (mapResult == null || mapResult.size() == 0) {
+			System.out.println("aaaaaaaaaaaaaaaaaaa");
+			mapResult = new HashMap<Piece, List<Location>>();
+			if (listPiece == null || listPiece.size() == 0) {
+				listPiece = new ArrayList<>();
+				if (model.getPlayer() == Player.PLAYER || model.getPlayer() == Player.COMPUTER2) {
+					listPiece = model.listWhiteAlliance;
+				} else if (model.getPlayer() == Player.PLAYER2 || model.getPlayer() == Player.COMPUTER) {
+					listPiece = model.listBlackAlliance;
+				}
+			}
+
+			for (Piece piece : listPiece) {
+				if (piece != null) {
+					mapResult.put(piece, piece.getRule().getRealLocationCanMove());
+				}
+			}
+		}
+		return mapResult;
+	}
+
 	Point start, stop;
 	Piece selectPiece;
+	Location destination;
 	JLabel lbl;
 
 	/**
@@ -67,30 +110,33 @@ public class BoardController implements MouseListener, MouseMotionListener {
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		// List<Piece> listPiece = new ArrayList<>();
-		// if (model.getPlayer() == Player.PLAYER || model.getPlayer() ==
-		// Player.COMPUTER2) {
-		// listPiece = model.listWhiteAlliance;
-		// } else if (model.getPlayer() == Player.PLAYER2 || model.getPlayer()
-		// == Player.COMPUTER) {
-		// listPiece = model.listBlackAlliance;
-		// }
-		// for (Piece piece : listPiece) {
-		// if (e.getSource() ==
-		// view.btnBoard[piece.getLocation().getX()][piece.getLocation().getY()])
-		// {
-		// List<Location> rule = piece.getRule().getRealLocationCanMove();
-		// if (rule != null) {
-		// System.out.println(rule);
-		// for (Location l : rule) {
-		// view.btnBoard[l.getX()][l.getY()]
-		// .setBorder(BorderFactory.createEtchedBorder(2, Color.BLUE,
-		// Color.GREEN));
-		// }view.pnBoard. validate();
-		// }view.pnBoard.validate();
-		// }
-		// view.pnBoard.validate();
-		// }
+		if (listPiece == null || listPiece.size() == 0) {
+			listPiece = new ArrayList<>();
+			if (model.getPlayer() == Player.PLAYER || model.getPlayer() == Player.COMPUTER2) {
+				listPiece = model.listWhiteAlliance;
+			} else if (model.getPlayer() == Player.PLAYER2 || model.getPlayer() == Player.COMPUTER) {
+				listPiece = model.listBlackAlliance;
+			}
+		}
+
+		for (Piece piece : listPiece) {
+
+			if (e.getSource() == view.btnBoard[piece.getLocation().getX()][piece.getLocation().getY()]) {
+				view.btnBoard[piece.getLocation().getX()][piece.getLocation().getY()].setBorderPainted(true);
+				view.btnBoard[piece.getLocation().getX()][piece.getLocation().getY()]
+						.setBorder(BorderFactory.createEtchedBorder(3, Color.BLUE, Color.RED));
+
+				List<Location> rule = getAllRule().get(piece);
+				if (rule != null) {
+					System.out.println(piece.getLinkImg() + "\n" + rule);
+					for (Location l : rule) {
+						view.btnBoard[l.getX()][l.getY()].setBorderPainted(true);
+						view.btnBoard[l.getX()][l.getY()]
+								.setBorder(BorderFactory.createEtchedBorder(Color.BLUE, Color.GREEN));
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -99,46 +145,27 @@ public class BoardController implements MouseListener, MouseMotionListener {
 	 */
 	@Override
 	public void mouseExited(MouseEvent e) {
-		// List<Piece> listPiece = new ArrayList<>();
-		// if (model.getPlayer() == Player.PLAYER || model.getPlayer() ==
-		// Player.COMPUTER2) {
-		// listPiece = model.listWhiteAlliance;
-		// } else if (model.getPlayer() == Player.PLAYER2 || model.getPlayer()
-		// == Player.COMPUTER) {
-		// listPiece = model.listBlackAlliance;
-		// }
-		// for (Piece piece : listPiece) {
-		// if (e.getSource() ==
-		// view.btnBoard[piece.getLocation().getX()][piece.getLocation().getY()])
-		// {
-		// List<Location> rule = piece.getRule().getRealLocationCanMove();
-		// if (rule != null) {
-		// for (Location l : rule) {
-		// view.btnBoard[l.getX()][l.getY()].setBorder(null);
-		// }view.pnBoard.validate();
-		// }view.pnBoard.validate();
-		// }
-		// view.pnBoard.validate();
-		// }
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		int wBtn = view.pnBoard.getWidth() / 8;
-		int hBtn = view.pnBoard.getHeight() / 8;
-		start = view.getMousePosition();
-		System.out.println("start →"+start);
-		for (int i = 0; i <= 8; i++) {
-			for (int j = 0; j <= 8; j++) {
-
-				if (start.getX() >= wBtn * i && start.getX() < wBtn * (i + 1) && start.getY() >= hBtn * j
-						&& start.getY() < hBtn * (j + 1)) {
-					selectPiece = model.getPieceAt(new Location(i, j));
-				}
-
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				view.btnBoard[i][j].setBorder(null);
 			}
 		}
-		System.out.println(selectPiece);
+	}
+
+	/**
+	 * lay quan co khi nhan chuot
+	 */
+	@Override
+	public void mousePressed(MouseEvent e) {
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				if (e.getSource() == view.btnBoard[i][j]) {
+					if (view.btnBoard[i][j] != null)
+						selectPiece = model.getPieceAt(new Location(i, j));
+				}
+			}
+			System.out.println(selectPiece);
+		}
 	}
 
 	/**
@@ -172,14 +199,16 @@ public class BoardController implements MouseListener, MouseMotionListener {
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
+
 		stop = e.getPoint();
-		System.out.println("Stop "+stop.getX() + "-" + stop.getY());
+		System.out.println("Stop " + stop.getX() + "-" + stop.getY());
 		if (selectPiece != null) {
 			int x = e.getX() - 520 / 8;
 			int y = e.getY() - 250 / 8;
 			int w = e.getY() + 520 / 8;
 			int h = e.getX() + 520 / 8;
 			lbl.setIcon(new ImageIcon(selectPiece.getLinkImg()));
+			System.out.println("lbl" + lbl.getIcon().toString());
 			lbl.setBounds(x, y, w, h);
 			view.pnBoard.repaint();
 			view.pnBoard.validate();
