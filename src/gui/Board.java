@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.BoxLayout;
@@ -13,13 +14,18 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-public class Board extends JFrame {
+import controller.BoardController;
+import core.ChessBoard;
+
+public class Board extends JFrame implements ActionListener {
 
 	/**
 	 * 
@@ -27,8 +33,9 @@ public class Board extends JFrame {
 	private static final long serialVersionUID = 3032926387546045087L;
 	public JPanel pnPlayer1, pnPlayer2, pnBoard, pnRecord;
 	public JButton btnBoard[][];
-	JButton btnNew, btnSave, btnOpen, btnRedo, btnUndo;
+	JButton btnRedo, btnUndo;
 	CreateButton create = new CreateButton();
+	JLayeredPane layerPop;
 
 	public JLabel lblPieceDragged;
 
@@ -36,91 +43,15 @@ public class Board extends JFrame {
 		setLayout(new BorderLayout());
 		setBackground(Color.WHITE);
 		createMenuBar();
-		// chua cac quan co tu binh
-		JPanel pnPrisoner = new JPanel();
-		pnPrisoner.setLayout(new BoxLayout(pnPrisoner, BoxLayout.Y_AXIS));
-		pnPrisoner.setMinimumSize(new Dimension(170, getHeight()));
-		pnPrisoner.setPreferredSize(new Dimension(170, getHeight()));
-
-		JLabel lblCom = new JLabel("COMPUTER");
-		pnPlayer1 = new JPanel();
-
-		pnPlayer2 = new JPanel();
-		JLabel lblPeo = new JLabel("YOUR NAME");
-
-		pnPrisoner.add(lblCom);
-		pnPrisoner.add(pnPlayer1);
-		pnPrisoner.add(pnPlayer2);
-		pnPrisoner.add(lblPeo);
-
-		pnBoard = new JPanel() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1844582857812420107L;
-
-			public void paintComponent(Graphics g) {
-				super.paintComponent(g);
-				g.drawImage(create.resizeImage(520, 520, "image\\chessboard.png").getImage(), 0, 0, null);
-				repaint();
-			}
-		};
-		Dimension dboard = new Dimension(520, 520);
-		pnBoard.setLayout(new GridLayout(8, 8));
-		pnBoard.setPreferredSize(dboard);
-		pnBoard.setMaximumSize(dboard);
-		pnBoard.setMinimumSize(dboard);
-		pnBoard.setSize(dboard);
-
-		btnBoard = new JButton[8][8];
-		// Dimension d = new Dimension(520 / 8, 520 / 8);
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				btnBoard[i][j] = create.paintButton();
-				btnBoard[i][j].setFocusPainted(true);
-				// btnBoard[i][j].setPreferredSize(d);
-				// btnBoard[i][j].setMinimumSize(d);
-				pnBoard.add(btnBoard[i][j]);
-			}
-		}
-		pnRecord = new JPanel();
-		pnRecord.setLayout(new BorderLayout());
-		pnRecord.setMinimumSize(new Dimension(250, getHeight()));
-		pnRecord.setPreferredSize(new Dimension(250, getHeight()));
-
-		// JPanel pnOption = new JPanel();
-		// btnNew = create.paintButton();
-		// btnNew.setBorder(new LineBorder(Color.ORANGE, 1));
-		// btnNew.setIcon(new ImageIcon("image\\hovernew.png"));
-		// btnNew.setRolloverIcon(new ImageIcon("image\\new.png"));
-		// btnSave = create.paintButton();
-		// btnSave.setIcon(new ImageIcon("image\\hoversave.png"));
-		// btnSave.setRolloverIcon(new ImageIcon("image\\save.png"));
-		// btnOpen = create.paintButton();
-		// btnOpen.setRolloverIcon(new ImageIcon("image\\open.png"));
-		// btnOpen.setIcon(new ImageIcon("image\\hoveropen.png"));
-		// pnOption.add(btnNew);
-		// pnOption.add(btnSave);
-		// pnOption.add(btnOpen);
-
-		JPanel pnRedoUndo = new JPanel();
-		btnRedo = new JButton(new ImageIcon("image\\redo.png"));
-
-		btnUndo = new JButton(new ImageIcon("image\\undo.png"));
-		pnRedoUndo.add(btnUndo);
-		pnRedoUndo.add(btnRedo);
-
-		pnRecord.add(pnRedoUndo, BorderLayout.SOUTH);
-		// pnRecord.add(pnOption, BorderLayout.NORTH);
-
-		getContentPane().add(pnPrisoner, BorderLayout.WEST);
-		getContentPane().add(pnBoard, BorderLayout.CENTER);
-		getContentPane().add(pnRecord, BorderLayout.EAST);
+		createBoard();
+		createPlayerPane();
+		createRecordPane();
+		createLayeredPane();
 
 		pack();
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		// setResizable(false);
-		// setLocationRelativeTo(null);
+		setLocationRelativeTo(null);
 		setVisible(true);
 	}
 
@@ -155,6 +86,13 @@ public class Board extends JFrame {
 		itemIntro.setMnemonic('I');
 		itemIntro.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.CTRL_MASK));
 
+		itemNew.addActionListener(this);
+		itemOpen.addActionListener(this);
+		itemSave.addActionListener(this);
+		itemExit.addActionListener(this);
+		itemHelp.addActionListener(this);
+		itemIntro.addActionListener(this);
+
 		menuOption.add(itemNew);
 		menuOption.addSeparator();
 		menuOption.add(itemSave);
@@ -172,6 +110,88 @@ public class Board extends JFrame {
 		setJMenuBar(menubar);
 	}
 
+	public void createBoard() {
+		pnBoard = new JPanel() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1844582857812420107L;
+
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				g.drawImage(create.resizeImage(520, 520, "image\\chessboard.png").getImage(), 0, 0, null);
+				repaint();
+			}
+		};
+		Dimension dboard = new Dimension(520, 520);
+		pnBoard.setLayout(new GridLayout(8, 8));
+		pnBoard.setPreferredSize(dboard);
+		pnBoard.setMaximumSize(dboard);
+		pnBoard.setMinimumSize(dboard);
+		pnBoard.setSize(dboard);
+
+		btnBoard = new JButton[8][8];
+		// Dimension d = new Dimension(520 / 8, 520 / 8);
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				btnBoard[i][j] = create.paintButton();
+				btnBoard[i][j].setFocusPainted(true);
+				pnBoard.add(btnBoard[i][j]);
+			}
+		}
+		getContentPane().add(pnBoard, BorderLayout.CENTER);
+	}
+
+	public void createLayeredPane() {
+		layerPop = super.getLayeredPane();
+		layerPop.setLayer(this, JLayeredPane.POPUP_LAYER);
+		layerPop.setLayout(null);
+		// layerPop.setOpaque(false);
+		lblPieceDragged = new JLabel();
+		layerPop.add(lblPieceDragged);
+		layerPop.setVisible(true);
+	}
+
+	public void createPlayerPane() {
+		// chua cac quan co tu binh
+		JPanel pnPrisoner = new JPanel();
+		pnPrisoner.setLayout(new BoxLayout(pnPrisoner, BoxLayout.Y_AXIS));
+		pnPrisoner.setMinimumSize(new Dimension(170, getHeight()));
+		pnPrisoner.setPreferredSize(new Dimension(170, getHeight()));
+
+		JLabel lblCom = new JLabel("COMPUTER");
+		pnPlayer1 = new JPanel();
+
+		pnPlayer2 = new JPanel();
+		JLabel lblPeo = new JLabel("YOUR NAME");
+
+		pnPrisoner.add(lblCom);
+		pnPrisoner.add(pnPlayer1);
+		pnPrisoner.add(pnPlayer2);
+		pnPrisoner.add(lblPeo);
+		getContentPane().add(pnPrisoner, BorderLayout.WEST);
+	}
+
+	public void createRecordPane() {
+
+		pnRecord = new JPanel();
+		pnRecord.setLayout(new BorderLayout());
+		pnRecord.setMinimumSize(new Dimension(250, getHeight()));
+		pnRecord.setPreferredSize(new Dimension(250, getHeight()));
+
+		JPanel pnRedoUndo = new JPanel();
+		btnRedo = new JButton(new ImageIcon("image\\redo.png"));
+
+		btnUndo = new JButton(new ImageIcon("image\\undo.png"));
+		pnRedoUndo.add(btnUndo);
+		pnRedoUndo.add(btnRedo);
+
+		pnRecord.add(pnRedoUndo, BorderLayout.SOUTH);
+
+		getContentPane().add(pnRecord, BorderLayout.EAST);
+
+	}
+
 	public void setIcon(String icon) {
 		lblPieceDragged.setIcon(new ImageIcon(icon));
 	}
@@ -180,4 +200,42 @@ public class Board extends JFrame {
 		new Board();
 	}
 
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == itemNew) {
+
+			String[] option = { "New Game", "Cancel" };
+			int choice = JOptionPane.showOptionDialog(null, "Are you really want to play?", "New Game",
+					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, option, option[0]);
+			if (choice == JOptionPane.YES_OPTION) {
+				new BoardController(new ChessBoard(), new Board());
+				return;
+			}
+		}
+		if (e.getSource() == itemOpen) {
+
+		}
+		if (e.getSource() == itemSave) {
+
+		}
+		if (e.getSource() == itemExit) {
+			String[] option = { "Close", "Cancel" };
+			int choice = JOptionPane.showOptionDialog(null, "Are you really want to play?", "New Game",
+					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, option, option[0]);
+			if (choice == JOptionPane.YES_OPTION) {
+				System.exit(0);
+				return;
+			}
+		}
+		if (e.getSource() == itemHelp) {
+
+		}
+		if (e.getSource() == itemIntro) {
+
+		}
+	}
+
+	public JLayeredPane getLayeredPane() {
+		return this.layerPop;
+	}
 }

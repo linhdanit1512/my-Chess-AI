@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,11 +11,13 @@ import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
+import javax.swing.JButton;
 import javax.swing.UIManager;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MoveAction;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import action.ChessAction;
+import action.Move;
 import chess.Piece;
 import core.ChessBoard;
 import core.ChessGoalTest;
@@ -24,7 +25,7 @@ import core.Location;
 import core.Player;
 import gui.Board;
 
-public class BoardController implements MouseListener, MouseMotionListener {
+public class BoardController implements MouseListener {
 	ChessBoard model;
 	Board view;
 	ChessAction action;
@@ -38,7 +39,7 @@ public class BoardController implements MouseListener, MouseMotionListener {
 
 	public static void main(String[] args) {
 		try {
-//			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+			// UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 			UIManager.setLookAndFeel(new NimbusLookAndFeel());
 		} catch (Exception e) {
 		}
@@ -51,16 +52,12 @@ public class BoardController implements MouseListener, MouseMotionListener {
 		action = new ChessAction(model);
 		@SuppressWarnings("unused")
 		ChessGoalTest goaltest = new ChessGoalTest(model);
-		lbl = new JLabel();
-		view.add(lbl);
 		view.pnBoard.addMouseListener(this);
-		view.pnBoard.addMouseMotionListener(this);
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				if (model.pieceBoard[i][j] != null) {
-					view.btnBoard[i][j].setIcon(new ImageIcon(model.pieceBoard[i][j].getLinkImg()));
+					view.btnBoard[i][j].setIcon(new ImageIcon("image\\" + model.pieceBoard[i][j].getLinkImg()));
 					view.btnBoard[i][j].addMouseListener(this);
-					view.btnBoard[i][j].addMouseMotionListener(this);
 				}
 			}
 		}
@@ -94,19 +91,66 @@ public class BoardController implements MouseListener, MouseMotionListener {
 	Point start, stop;
 	Piece selectPiece;
 	Location destination;
-	JLabel lbl;
+	
 
 	/**
 	 * Mouse Listener
 	 */
+	int count = 0;
+
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		if (count == 0) {
+			for (int i = 0; i < 8; i++) {
+				for (int j = 0; j < 8; j++) {
+					if (e.getSource() == view.btnBoard[i][j]) {
+						if (view.btnBoard[i][j] != null) {
+							selectPiece = model.getPieceAt(new Location(i, j));
+							view.btnBoard[i][j].setBorderPainted(true);
+							view.btnBoard[i][j].setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
+
+							for (Location l : getAllRule().get(selectPiece)) {
+								view.btnBoard[l.getX()][l.getY()].setBorderPainted(true);
+								view.btnBoard[l.getX()][l.getY()]
+										.setBorder(BorderFactory.createEtchedBorder(2, Color.BLUE, Color.GREEN));
+							}
+							System.out.println(selectPiece);
+							count = 1;
+							return;
+						}
+					}
+				}
+			}
+			return;
+		} else if (count == 1) {
+			if (selectPiece != null) {
+				for (int i = 0; i < 8; i++) {
+					for (int j = 0; j < 8; j++) {
+						if (e.getSource() == view.btnBoard[i][j]) {
+							view.btnBoard[i][j].setBorderPainted(true);
+							view.btnBoard[i][j].setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
+							view.btnBoard[i][j].setIcon(new ImageIcon("image\\" + selectPiece.getLinkImg()));
+							view.btnBoard[selectPiece.getLocation().getX()][selectPiece.getLocation().getY()]
+									.setIcon(null);
+							action.put(new Move(selectPiece, new Location(i,j)));
+							view.pnBoard.repaint();
+							view.repaint();
+							
+							count = 0;
+							return;
+						}
+					}
+				}
+			}
+		}
 	}
 
 	/**
 	 * hien chi dan cac nuoc co the di khi di chuyen chuot qua quan co
 	 * 
 	 */
+
+	List<JButton> btnEntered = new ArrayList<JButton>();
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
@@ -122,6 +166,7 @@ public class BoardController implements MouseListener, MouseMotionListener {
 		for (Piece piece : listPiece) {
 
 			if (e.getSource() == view.btnBoard[piece.getLocation().getX()][piece.getLocation().getY()]) {
+				btnEntered.add(view.btnBoard[piece.getLocation().getX()][piece.getLocation().getY()]);
 				view.btnBoard[piece.getLocation().getX()][piece.getLocation().getY()].setBorderPainted(true);
 				view.btnBoard[piece.getLocation().getX()][piece.getLocation().getY()]
 						.setBorder(BorderFactory.createEtchedBorder(3, Color.BLUE, Color.RED));
@@ -130,9 +175,10 @@ public class BoardController implements MouseListener, MouseMotionListener {
 				if (rule != null) {
 					System.out.println(piece.getLinkImg() + "\n" + rule);
 					for (Location l : rule) {
+						btnEntered.add(view.btnBoard[l.getX()][l.getY()]);
 						view.btnBoard[l.getX()][l.getY()].setBorderPainted(true);
 						view.btnBoard[l.getX()][l.getY()]
-								.setBorder(BorderFactory.createEtchedBorder(Color.BLUE, Color.GREEN));
+								.setBorder(BorderFactory.createEtchedBorder(2, Color.BLUE, Color.GREEN));
 					}
 				}
 			}
@@ -145,11 +191,13 @@ public class BoardController implements MouseListener, MouseMotionListener {
 	 */
 	@Override
 	public void mouseExited(MouseEvent e) {
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				view.btnBoard[i][j].setBorder(null);
+		if (btnEntered != null && !btnEntered.isEmpty()) {
+			for (JButton btn : btnEntered) {
+				btn.setBorderPainted(false);
+				btn.setBorder(null);
 			}
 		}
+		btnEntered.clear();
 	}
 
 	/**
@@ -157,15 +205,7 @@ public class BoardController implements MouseListener, MouseMotionListener {
 	 */
 	@Override
 	public void mousePressed(MouseEvent e) {
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				if (e.getSource() == view.btnBoard[i][j]) {
-					if (view.btnBoard[i][j] != null)
-						selectPiece = model.getPieceAt(new Location(i, j));
-				}
-			}
-			System.out.println(selectPiece);
-		}
+
 	}
 
 	/**
@@ -173,53 +213,6 @@ public class BoardController implements MouseListener, MouseMotionListener {
 	 */
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// Point point = e.getPoint();
-		// if (selectPiece != null) {
-		// for (int i = 0; i < 8; i++) {
-		// for (int j = 0; j < 8; j++) {
-		// Rectangle r = view.btnBoard[i][j].getBounds();
-		// if (r.contains(point)) {
-		// view.btnBoard[i][j].setIcon(new ImageIcon(selectPiece.getLinkImg()));
-		// view.btnBoard[selectPiece.getLocation().getX()][selectPiece.getLocation().getY()].setIcon(null);
-		// model.setPieceAtLocation(new Location(i, j), selectPiece);
-		// }view.pnBoard.validate();
-		// }view.pnBoard.validate();
-		// }
-		// view.pnBoard.validate();
-		// }
-
-	}
-
-	/**
-	 * Mouse motion listener
-	 */
-	/**
-	 * khi nhan quan co va keo re no
-	 */
-
-	@Override
-	public void mouseDragged(MouseEvent e) {
-
-		stop = e.getPoint();
-		System.out.println("Stop " + stop.getX() + "-" + stop.getY());
-		if (selectPiece != null) {
-			int x = e.getX() - 520 / 8;
-			int y = e.getY() - 250 / 8;
-			int w = e.getY() + 520 / 8;
-			int h = e.getX() + 520 / 8;
-			lbl.setIcon(new ImageIcon(selectPiece.getLinkImg()));
-			System.out.println("lbl" + lbl.getIcon().toString());
-			lbl.setBounds(x, y, w, h);
-			view.pnBoard.repaint();
-			view.pnBoard.validate();
-		}
-	}
-
-	/**
-	 * khi con tro di chuyen vao trong component
-	 */
-	@Override
-	public void mouseMoved(MouseEvent e) {
 
 	}
 

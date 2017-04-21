@@ -21,7 +21,7 @@ public class ChessAction implements Observer {
 		if (ob instanceof ChessBoard)
 			this.board = (ChessBoard) ob;
 	}
-
+	
 	/**
 	 * 
 	 * @param move:
@@ -29,7 +29,7 @@ public class ChessAction implements Observer {
 	 * @return:
 	 * 
 	 */
-	public boolean move(Move move) {
+	public boolean put(Move move) {
 		if (move == null)
 			return false;
 		if (move.getFrom().getLocation() == move.getTo())
