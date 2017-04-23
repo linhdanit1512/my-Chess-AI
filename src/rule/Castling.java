@@ -44,60 +44,63 @@ public class Castling extends Rule {
 	public List<Location> castling(Piece king) {
 		if (king != null) {
 			if (king.getMove() == 0) {
-				Piece[][] pieces = board.pieceBoard;
-				int x = king.getLocation().getX();
-				List<Piece> liTmp;
-				// kiem tra co phai vua den hay ko
-				if (pieces[x][4].getType().equals(PieceType.KING) && pieces[x][4].equals(king)) {
+				// kiem tra co phai vua hay ko
+				if (king.getType().equals(PieceType.KING)) {
+					Piece[][] pieces = board.pieceBoard;
+					int x = king.getLocation().getX();
+					List<Piece> liTmp = new ArrayList<Piece>();
 					// lay danh sach cac quan dich dang chieu vua
 					// neu vua dang bi chieu thi ko duoc nhap thanh
-					liTmp = getEnemyControlAtLocation(new Location(x, 4), king.getColor());
-					if (liTmp != null && liTmp.isEmpty()) {
+					liTmp.addAll(getEnemyControlAtLocation(king.getLocation(), king.getColor()));
+					if (liTmp != null && !liTmp.isEmpty()) {
 						return null;
 					}
-				}
-				// chua ket qua tra ve
-				List<Location> list = new ArrayList<Location>();
-				// kiem tra xem giua vua va xe ben trai phai tro^'ng
+					// chua ket qua tra ve
+					List<Location> list = new ArrayList<Location>();
+					// kiem tra xem giua vua va xe ben trai phai tro^'ng
 
-				// nhap thanh xa
+					// nhap thanh xa
 
-				if (pieces[x][1] == null && pieces[x][2] == null && pieces[x][3] == null) {
-					// kiem tra la quan xe phai chua di chuyen va cung mau voi
-					// vua
-					if (PieceType.ROOK.equals(pieces[x][0].getType()) && pieces[x][0].getColor() == king.getColor()
-							&& pieces[x][0].getMove() == 0) {
-						// kiem tra vi tri ma quan vua di qua (2 o ben trai no)
-						// co
-						// bi chieu hay ko, neu bi chieu thi bo qua, ko thi add
-						// vao
-						// list
-						liTmp = getEnemyControlAtLocation(new Location(x, 2), king.getColor());
-						liTmp.addAll(getEnemyControlAtLocation(new Location(0, 3), king.getColor()));
-						if (liTmp == null || liTmp.isEmpty()) {
-							list.add(new Location(x, 2));
+					if (pieces[x][1] == null && pieces[x][2] == null && pieces[x][3] == null) {
+						// kiem tra la quan xe phai chua di chuyen va cung mau
+						// voi
+						// vua
+						if (PieceType.ROOK.equals(pieces[x][0].getType()) && pieces[x][0].getColor() == king.getColor()
+								&& pieces[x][0].getMove() == 0) {
+							/**
+							 * kiem tra vi tri ma quan vua di qua (2 o ben trai
+							 * no) co bi chieu hay ko, neu bi chieu thi bo qua,
+							 * ko thi add vao list
+							 */
+							liTmp.clear();
+							liTmp.addAll(getEnemyControlAtLocation(new Location(x, 2), king.getColor()));
+							liTmp.addAll(getEnemyControlAtLocation(new Location(x, 3), king.getColor()));
+							if (liTmp == null || liTmp.isEmpty()) {
+								list.add(new Location(x, 2));
+							}
 						}
 					}
-				}
 
-				// nhap thanh gan
+					// nhap thanh gan
 
-				if (pieces[x][5] == null && pieces[x][6] == null) {
-					if (PieceType.ROOK.equals(pieces[x][7].getType()) && pieces[x][7].getColor() == king.getColor()
-							&& pieces[x][7].getMove() == 0) {
-						// kiem tra vi tri ma quan vua di qua (2 o ben trai no)
-						// co
-						// bi chieu hay ko, neu bi chieu thi bo qua, ko thi add
-						// vao
-						// list
-						liTmp = getEnemyControlAtLocation(new Location(x, 5), king.getColor());
-						liTmp.addAll(getEnemyControlAtLocation(new Location(0, 6), king.getColor()));
-						if (liTmp == null || liTmp.isEmpty()) {
-							list.add(new Location(x, 6));
+					if (pieces[x][5] == null && pieces[x][6] == null) {
+						if (PieceType.ROOK.equals(pieces[x][7].getType()) && pieces[x][7].getColor() == king.getColor()
+								&& pieces[x][7].getMove() == 0) {
+							/**
+							 * kiem tra vi tri ma quan vua di qua (2 o ben trai
+							 * no) co bi chieu hay ko, neu bi chieu thi bo qua,
+							 * ko thi add vao list
+							 */
+							liTmp.clear();
+							liTmp.addAll(getEnemyControlAtLocation(new Location(x, 5), king.getColor()));
+							liTmp.addAll(getEnemyControlAtLocation(new Location(x, 6), king.getColor()));
+							if (liTmp == null || liTmp.isEmpty()) {
+								list.add(new Location(x, 6));
+							}
 						}
 					}
+					return list;
 				}
-				return list;
 			}
 		}
 		return null;

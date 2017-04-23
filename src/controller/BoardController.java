@@ -1,7 +1,8 @@
 package controller;
 
 import java.awt.Color;
-import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -13,34 +14,37 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.UIManager;
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MoveAction;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import action.ChessAction;
 import action.Move;
+import chess.ColorPiece;
 import chess.Piece;
+import chess.PieceType;
 import core.ChessBoard;
-import core.ChessGoalTest;
 import core.Location;
 import core.Player;
+import core.Sound;
 import gui.Board;
+import rule.Castling;
 
-public class BoardController implements MouseListener {
+public class BoardController implements MouseListener, ActionListener {
 	ChessBoard model;
 	Board view;
 	ChessAction action;
+	int player;
 
 	public BoardController(ChessBoard model, Board view) {
 		super();
 		this.model = model;
 		this.view = view;
+		player = model.getPlayer();
 		init();
 	}
 
 	public static void main(String[] args) {
 		try {
-			// UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-			UIManager.setLookAndFeel(new NimbusLookAndFeel());
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+			// UIManager.setLookAndFeel(new NimbusLookAndFeel());
 		} catch (Exception e) {
 		}
 		ChessBoard model = new ChessBoard();
@@ -50,28 +54,30 @@ public class BoardController implements MouseListener {
 
 	void init() {
 		action = new ChessAction(model);
-		@SuppressWarnings("unused")
-		ChessGoalTest goaltest = new ChessGoalTest(model);
 		view.pnBoard.addMouseListener(this);
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				if (model.pieceBoard[i][j] != null) {
 					view.btnBoard[i][j].setIcon(new ImageIcon("image\\" + model.pieceBoard[i][j].getLinkImg()));
-					view.btnBoard[i][j].addMouseListener(this);
+					// view.btnBoard[i][j].addMouseListener(this);
 				}
+				view.btnBoard[i][j].addActionListener(this);
 			}
 		}
 	}
 
 	private List<Piece> listPiece = new ArrayList<>();
-	Map<Piece, List<Location>> mapResult;
+	Map<Piece, List<Location>> mapResult = new HashMap<Piece, List<Location>>();
 
 	public Map<Piece, List<Location>> getAllRule() {
-		if (mapResult == null || mapResult.size() == 0) {
-			System.out.println("aaaaaaaaaaaaaaaaaaa");
+		if (mapResult == null) {
 			mapResult = new HashMap<Piece, List<Location>>();
-			if (listPiece == null || listPiece.size() == 0) {
+		}
+		if (mapResult.size() == 0) {
+			if (listPiece == null) {
 				listPiece = new ArrayList<>();
+			}
+			if (listPiece.size() == 0) {
 				if (model.getPlayer() == Player.PLAYER || model.getPlayer() == Player.COMPUTER2) {
 					listPiece = model.listWhiteAlliance;
 				} else if (model.getPlayer() == Player.PLAYER2 || model.getPlayer() == Player.COMPUTER) {
@@ -81,68 +87,27 @@ public class BoardController implements MouseListener {
 
 			for (Piece piece : listPiece) {
 				if (piece != null) {
-					mapResult.put(piece, piece.getRule().getRealLocationCanMove());
+					if (piece.getRule().getRealLocationCanMove() != null
+							&& !piece.getRule().getRealLocationCanMove().isEmpty())
+						mapResult.put(piece, piece.getRule().getRealLocationCanMove());
 				}
 			}
 		}
 		return mapResult;
 	}
 
-	Point start, stop;
-	Piece selectPiece;
-	Location destination;
-	
+	public void clearMapRule() {
+		listPiece = new ArrayList<>();
+		mapResult = new HashMap<Piece, List<Location>>();
+	}
 
 	/**
 	 * Mouse Listener
 	 */
-	int count = 0;
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (count == 0) {
-			for (int i = 0; i < 8; i++) {
-				for (int j = 0; j < 8; j++) {
-					if (e.getSource() == view.btnBoard[i][j]) {
-						if (view.btnBoard[i][j] != null) {
-							selectPiece = model.getPieceAt(new Location(i, j));
-							view.btnBoard[i][j].setBorderPainted(true);
-							view.btnBoard[i][j].setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
 
-							for (Location l : getAllRule().get(selectPiece)) {
-								view.btnBoard[l.getX()][l.getY()].setBorderPainted(true);
-								view.btnBoard[l.getX()][l.getY()]
-										.setBorder(BorderFactory.createEtchedBorder(2, Color.BLUE, Color.GREEN));
-							}
-							System.out.println(selectPiece);
-							count = 1;
-							return;
-						}
-					}
-				}
-			}
-			return;
-		} else if (count == 1) {
-			if (selectPiece != null) {
-				for (int i = 0; i < 8; i++) {
-					for (int j = 0; j < 8; j++) {
-						if (e.getSource() == view.btnBoard[i][j]) {
-							view.btnBoard[i][j].setBorderPainted(true);
-							view.btnBoard[i][j].setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
-							view.btnBoard[i][j].setIcon(new ImageIcon("image\\" + selectPiece.getLinkImg()));
-							view.btnBoard[selectPiece.getLocation().getX()][selectPiece.getLocation().getY()]
-									.setIcon(null);
-							action.put(new Move(selectPiece, new Location(i,j)));
-							view.pnBoard.repaint();
-							view.repaint();
-							
-							count = 0;
-							return;
-						}
-					}
-				}
-			}
-		}
 	}
 
 	/**
@@ -214,6 +179,139 @@ public class BoardController implements MouseListener {
 	@Override
 	public void mouseReleased(MouseEvent e) {
 
+	}
+
+	Location to, from;
+	List<Location> listTMPMove = new ArrayList<Location>();
+	Sound sound = new Sound();
+	int count = 0;
+	boolean checkCastlingWhite = false, checkCastlingBlack = false;
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				if (view.btnBoard[i][j] == e.getSource()) {
+					if (from == null || (model.getPieceAt(new Location(i, j)) != null
+							&& model.getPieceAt(new Location(i, j)).getColor() == model.getPlayer())) {
+						for (Location l : listTMPMove) {
+							view.btnBoard[l.getX()][l.getY()].setBorder(null);
+							view.btnBoard[l.getX()][l.getY()].setBorderPainted(false);
+						}
+						listTMPMove.clear();
+						if (view.btnBoard[i][j] != null && model.pieceBoard[i][j] != null) {
+							if (model.pieceBoard[i][j].getColor() == model.getPlayer()) {
+								from = new Location(i, j);
+								if (to != null) {
+									view.btnBoard[to.getX()][to.getY()].setBorder(null);
+									to = null;
+								}
+								listTMPMove.add(from);
+								view.btnBoard[i][j].setBorderPainted(true);
+								view.btnBoard[i][j]
+										.setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
+
+								for (Location l : getAllRule().get(model.getPieceAt(from))) {
+									listTMPMove.add(l);
+									view.btnBoard[l.getX()][l.getY()].setBorderPainted(true);
+									view.btnBoard[l.getX()][l.getY()]
+											.setBorder(BorderFactory.createEtchedBorder(2, Color.BLUE, Color.GREEN));
+								}
+								return;
+							}
+						}
+					}
+
+					if (from != null && to == null) {
+						to = new Location(i, j);
+						if (from.equals(to)) {
+
+							for (Location l : listTMPMove) {
+								view.btnBoard[l.getX()][l.getY()].setBorder(null);
+								view.btnBoard[l.getX()][l.getY()].setBorderPainted(false);
+							}
+							listTMPMove.clear();
+							from = null;
+							to = null;
+							return;
+						}
+						Move move = new Move(model.getPieceAt(from), to);
+
+						boolean tmp = false;
+						if (move.getFrom().getColor() == ColorPiece.WHITE)
+							tmp = checkCastlingWhite;
+						else if (move.getFrom().getColor() == ColorPiece.BLACK)
+							tmp = checkCastlingBlack;
+						if (tmp == false) {
+							if (isCastling(move)) {
+								int x = move.getTo().getX();
+								int y = move.getTo().getY();
+								if (y == 2) {
+									view.btnBoard[x][3]
+											.setIcon(new ImageIcon("image\\" + model.pieceBoard[x][0].getLinkImg()));
+									view.btnBoard[x][0].setIcon(null);
+								}
+
+								if (y == 6) {
+									view.btnBoard[x][5]
+											.setIcon(new ImageIcon("image\\" + model.pieceBoard[x][7].getLinkImg()));
+									view.btnBoard[x][7].setIcon(null);
+								}
+								view.btnBoard[from.getX()][from.getY()].setIcon(null);
+							}
+						}
+						// them vao stack nuoc di nay
+						if (action.push(move)) {
+							sound.playSound("sound\\Move.WAV");
+
+							for (Location l : listTMPMove) {
+								view.btnBoard[l.getX()][l.getY()].setBorder(null);
+								view.btnBoard[l.getX()][l.getY()].setBorderPainted(false);
+							}
+							view.btnBoard[to.getX()][to.getY()].setBorderPainted(true);
+							view.btnBoard[to.getX()][to.getY()]
+									.setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
+							view.btnBoard[to.getX()][to.getY()]
+									.setIcon(new ImageIcon("image\\" + action.peek().getFrom().getLinkImg()));
+
+							// view.btnBoard[from.getX()][from.getY()].setBorderPainted(false);
+							view.btnBoard[from.getX()][from.getY()].setIcon(null);
+
+							if (model.getPlayer() == Player.PLAYER || model.getPlayer() == Player.COMPUTER2)
+								model.setPlayer(Player.PLAYER2);
+							else if (model.getPlayer() == Player.PLAYER2 || model.getPlayer() == Player.COMPUTER)
+								model.setPlayer(Player.PLAYER);
+							System.out.println("System.out.println(action.push(new Move(board.pieceBoard[" + from.getX()
+									+ "][" + from.getY() + "], new Location(" + to.getX() + ", " + to.getY() + "))));");
+							model.setMeasurements(model.getPlayer(), model.pieceBoard);
+							listTMPMove.clear();
+							clearMapRule();
+							from = null;
+							// view.pnBoard.repaint();
+							// view.repaint();
+							view.validate();
+							model.printBoard();
+						} else {
+							to = null;
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public boolean isCastling(Move move) {
+		if (move.getFrom().getType().equals(PieceType.KING)) {
+			if (move.getFrom().getRule().getRule() != null) {
+				Castling castling = (Castling) move.getFrom().getRule().getRule();
+				List<Location> list = castling.castling(move.getFrom());
+				if (list.contains(move.getTo())) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 }

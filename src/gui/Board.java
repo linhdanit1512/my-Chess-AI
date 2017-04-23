@@ -119,7 +119,7 @@ public class Board extends JFrame implements ActionListener {
 
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
-				g.drawImage(create.resizeImage(520, 520, "image\\chessboard.png").getImage(), 0, 0, null);
+				g.drawImage(create.resizeImage(520, 520, "image\\chessboard2.png").getImage(), 0, 0, null);
 				repaint();
 			}
 		};

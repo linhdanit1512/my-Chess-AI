@@ -21,7 +21,7 @@ public class KingRule extends Rule {
 		ob.addObserver(this);
 	}
 
-	public List<Location> getRule() {
+	public List<Location> getRules() {
 		List<Location> listLocation = new ArrayList<Location>();
 		int x = location.getX();
 		int y = location.getY();
@@ -51,7 +51,7 @@ public class KingRule extends Rule {
 				List<Location> result = new ArrayList<Location>();
 				// chua cac gia tri di theo quy tac
 				List<Location> tmp = new ArrayList<Location>();
-				tmp = getRule();
+				tmp = getRules();
 				for (Location l : tmp) {
 					// neu o vi tri do co ko bi quan dich khong che thi co
 					// the di
@@ -62,14 +62,15 @@ public class KingRule extends Rule {
 
 				}
 				// neu vua co them luat nhap thanh
-				if (rule != null)
+				if (rule != null) {
 					// neu vua chua di chuyen thi kiem tra nhap thanh
 					if (king.getMove() == 0) {
 						// neu vua ko bi chieu thi kiem tra nhap thanh
-						if (getEnemyControlAtLocation(location, king.getColor()) == null
-								|| getEnemyControlAtLocation(location, king.getColor()).isEmpty())
-							result.addAll(((Castling) rule).getRealLocationCanMove());
+						List<Location> list = ((Castling) rule).getRealLocationCanMove();
+						if (list != null && !list.isEmpty())
+							result.addAll(list);
 					}
+				}
 				return result;
 			}
 		}
@@ -78,7 +79,7 @@ public class KingRule extends Rule {
 
 	@Override
 	public List<Location> getNormalRule() {
-		return getRule();
+		return getRules();
 
 	}
 

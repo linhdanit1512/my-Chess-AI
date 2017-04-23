@@ -6,12 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
-import java.util.Observer;
 
 import chess.ColorPiece;
 import chess.Piece;
 import chess.PieceType;
 import rule.BishopRule;
+import rule.Castling;
 import rule.KingRule;
 import rule.KnightRule;
 import rule.PawnRule;
@@ -23,7 +23,6 @@ public class ChessBoard extends Observable implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 6210724185703262293L;
-	private List<Observer> listOb = new ArrayList<Observer>();
 	public Piece[][] pieceBoard = new Piece[8][8];
 	// Map<Location, Piece> mapPiece = new HashMap<>();
 	public Map<Integer, Piece> mapKing = new HashMap<Integer, Piece>();
@@ -66,21 +65,23 @@ public class ChessBoard extends Observable implements Serializable {
 		/**
 		 * BLACK ALLIANCE
 		 */
-		addPiece(new Location(0, 0), new Piece(PieceType.ROOK, 'X', new RookRule(this, new Location(0, 0)),
+		addPiece(new Location(0, 0), new Piece(PieceType.ROOK, 'R', new RookRule(this, new Location(0, 0)),
 				ColorPiece.BLACK, 50, "blackrook.png"));
-		addPiece(new Location(0, 1), new Piece(PieceType.KNIGHT, 'M', new KnightRule(this, new Location(0, 1)),
+		addPiece(new Location(0, 1), new Piece(PieceType.KNIGHT, 'N', new KnightRule(this, new Location(0, 1)),
 				ColorPiece.BLACK, 30, "blackknight.png"));
-		addPiece(new Location(0, 2), new Piece(PieceType.BISHOP, 'T', new BishopRule(this, new Location(0, 2)),
+		addPiece(new Location(0, 2), new Piece(PieceType.BISHOP, 'B', new BishopRule(this, new Location(0, 2)),
 				ColorPiece.BLACK, 32, "blackbishop.png"));
-		addPiece(new Location(0, 3), new Piece(PieceType.QUEEN, 'H', new QueenRule(this, new Location(0, 3)),
+		addPiece(new Location(0, 3), new Piece(PieceType.QUEEN, 'Q', new QueenRule(this, new Location(0, 3)),
 				ColorPiece.BLACK, 90, "blackqueen.png"));
-		addPiece(new Location(0, 4), new Piece(PieceType.KING, 'V', new KingRule(this, new Location(0, 4)),
-				ColorPiece.BLACK, 10000, "blackking.png"));
-		addPiece(new Location(0, 5), new Piece(PieceType.BISHOP, 'T', new BishopRule(this, new Location(0, 5)),
+		addPiece(new Location(0, 4),
+				new Piece(PieceType.KING, 'K',
+						new KingRule(this, new Castling(this, new Location(0, 4)), new Location(0, 4)),
+						ColorPiece.BLACK, 10000, "blackking.png"));
+		addPiece(new Location(0, 5), new Piece(PieceType.BISHOP, 'B', new BishopRule(this, new Location(0, 5)),
 				ColorPiece.BLACK, 32, "blackbishop.png"));
-		addPiece(new Location(0, 6), new Piece(PieceType.KNIGHT, 'M', new KnightRule(this, new Location(0, 6)),
+		addPiece(new Location(0, 6), new Piece(PieceType.KNIGHT, 'N', new KnightRule(this, new Location(0, 6)),
 				ColorPiece.BLACK, 30, "blackknight.png"));
-		addPiece(new Location(0, 7), new Piece(PieceType.ROOK, 'X', new RookRule(this, new Location(0, 7)),
+		addPiece(new Location(0, 7), new Piece(PieceType.ROOK, 'R', new RookRule(this, new Location(0, 7)),
 				ColorPiece.BLACK, 50, "blackrook.png"));
 
 		for (int i = 0; i < pieceBoard[0].length; i++) {
@@ -92,21 +93,23 @@ public class ChessBoard extends Observable implements Serializable {
 		/**
 		 * WHITE ALLIANCE
 		 */
-		addPiece(new Location(7, 0), new Piece(PieceType.ROOK, 'X', new RookRule(this, new Location(7, 0)),
+		addPiece(new Location(7, 0), new Piece(PieceType.ROOK, 'R', new RookRule(this, new Location(7, 0)),
 				ColorPiece.WHITE, 50, "whiterook.png"));
-		addPiece(new Location(7, 1), new Piece(PieceType.KNIGHT, 'M', new KnightRule(this, new Location(7, 1)),
+		addPiece(new Location(7, 1), new Piece(PieceType.KNIGHT, 'N', new KnightRule(this, new Location(7, 1)),
 				ColorPiece.WHITE, 30, "whiteknight.png"));
-		addPiece(new Location(7, 2), new Piece(PieceType.BISHOP, 'T', new BishopRule(this, new Location(7, 2)),
+		addPiece(new Location(7, 2), new Piece(PieceType.BISHOP, 'B', new BishopRule(this, new Location(7, 2)),
 				ColorPiece.WHITE, 32, "whitebishop.png"));
-		addPiece(new Location(7, 3), new Piece(PieceType.QUEEN, 'H', new QueenRule(this, new Location(7, 3)),
+		addPiece(new Location(7, 3), new Piece(PieceType.QUEEN, 'Q', new QueenRule(this, new Location(7, 3)),
 				ColorPiece.WHITE, 90, "whitequeen.png"));
-		addPiece(new Location(7, 4), new Piece(PieceType.KING, 'V', new KingRule(this, new Location(7, 4)),
-				ColorPiece.WHITE, 10000, "whiteking.png"));
-		addPiece(new Location(7, 5), new Piece(PieceType.BISHOP, 'T', new BishopRule(this, new Location(7, 5)),
+		addPiece(new Location(7, 4),
+				new Piece(PieceType.KING, 'K',
+						new KingRule(this, new Castling(this, new Location(7, 4)), new Location(7, 4)),
+						ColorPiece.WHITE, 10000, "whiteking.png"));
+		addPiece(new Location(7, 5), new Piece(PieceType.BISHOP, 'B', new BishopRule(this, new Location(7, 5)),
 				ColorPiece.WHITE, 32, "whitebishop.png"));
-		addPiece(new Location(7, 6), new Piece(PieceType.KNIGHT, 'M', new KnightRule(this, new Location(7, 6)),
+		addPiece(new Location(7, 6), new Piece(PieceType.KNIGHT, 'N', new KnightRule(this, new Location(7, 6)),
 				ColorPiece.WHITE, 30, "whiteknight.png"));
-		addPiece(new Location(7, 7), new Piece(PieceType.ROOK, 'X', new RookRule(this, new Location(7, 7)),
+		addPiece(new Location(7, 7), new Piece(PieceType.ROOK, 'R', new RookRule(this, new Location(7, 7)),
 				ColorPiece.WHITE, 50, "whiterook.png"));
 
 		mapKing.put(ColorPiece.BLACK, getPieceAt(new Location(0, 4)));
@@ -140,7 +143,11 @@ public class ChessBoard extends Observable implements Serializable {
 			return;
 		int x = location.getX();
 		int y = location.getY();
-		this.pieceBoard[x][y] = piece;
+		if (pieceBoard[x][y] != null)
+			// xoa quan co o vi tri se toi
+			removePiece(location);
+		Location tmp = piece.getLocation();
+		pieceBoard[x][y] = piece;
 		if (pieceBoard[x][y].getColor() == ColorPiece.WHITE)
 			for (Piece a : listWhiteAlliance) {
 				if (a.equals(piece) && a.getLocation() == piece.getLocation())
@@ -151,8 +158,10 @@ public class ChessBoard extends Observable implements Serializable {
 				if (a.equals(piece) && a.getLocation() == piece.getLocation())
 					a.setLocation(location);
 			}
+
 		this.pieceBoard[x][y].setLocation(location);
 		this.pieceBoard[x][y].getRule().setLocation(location);
+		pieceBoard[tmp.getX()][tmp.getY()] = null;
 	}
 
 	public void removePiece(Location location) {
@@ -167,10 +176,6 @@ public class ChessBoard extends Observable implements Serializable {
 				listWhiteAlliance.remove(getPieceAt(location));
 		}
 		this.pieceBoard[x][y] = null;
-	}
-
-	public synchronized void addObserver(Observer observer) {
-		this.listOb.add(observer);
 	}
 
 	public Piece getPieceAt(Location location) {
@@ -237,6 +242,18 @@ public class ChessBoard extends Observable implements Serializable {
 
 	public void setPlayer(int player) {
 		this.player = player;
+	}
+
+	public void measurementsChanged() {
+		setChanged();
+		notifyObservers();
+	}
+
+	public void setMeasurements(int player, Piece[][] pieces) {
+		this.player = player;
+		this.pieceBoard = pieces;
+		measurementsChanged();
+
 	}
 
 }
