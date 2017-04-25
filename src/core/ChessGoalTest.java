@@ -1,19 +1,13 @@
 package core;
 
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import chess.Piece;
 
-public class ChessGoalTest implements Observer {
-	static ChessBoard board;
-	public static int player = 0;
+public class ChessGoalTest {
 
-	public ChessGoalTest(ChessBoard board) {
+	public ChessGoalTest() {
 		super();
-		ChessGoalTest.board = board;
-		ChessGoalTest.player = board.getPlayer();
 	}
 
 	/**
@@ -21,8 +15,8 @@ public class ChessGoalTest implements Observer {
 	 * @param player
 	 * @return kiem tra chieu bi
 	 */
-	public static boolean checkWin() {
-		if (checkmate()) {
+	public static boolean checkWin(ChessBoard board) {
+		if (checkmate(board)) {
 			for (int i = 0; i < 8; i++) {
 				for (int j = 0; j < 8; j++) {
 					Piece piece = board.pieceBoard[i][j];
@@ -44,8 +38,8 @@ public class ChessGoalTest implements Observer {
 	 * @param player
 	 * @return kiem tra co hoa
 	 */
-	public static boolean checkDraw() {
-		if (checkmate())
+	public static boolean checkDraw(ChessBoard board) {
+		if (checkmate(board))
 			return false;
 
 		for (int i = 0; i < 8; i++) {
@@ -70,27 +64,16 @@ public class ChessGoalTest implements Observer {
 	 * @see rule.Rule.getAllLocationControl(Location)
 	 * 
 	 */
-	public static boolean checkmate() {
+	public static boolean checkmate(ChessBoard board) {
 		Piece king = board.getKing().get(board.getPlayer());
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				if (board.pieceBoard[i][j] != null && board.pieceBoard[i][j].getColor() != king.getColor()) {
-					if (board.pieceBoard[i][j].getRule().checkContains(
-							board.pieceBoard[i][j].getRule().getAllLocationControl(), king.getLocation()))
+					if (board.pieceBoard[i][j].getRule().getAllLocationControl().contains(king.getLocation()))
 						return true;
 				}
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public void update(Observable o, Object arg) {
-		if (o != null) {
-			if (o instanceof ChessBoard) {
-				ChessGoalTest.board = (ChessBoard) o;
-				ChessGoalTest.player = board.getPlayer();
-			}
-		}
 	}
 }

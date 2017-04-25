@@ -11,7 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
-public class CreateButton {
+public class DecoButton {
 
 	public JButton paintButton() {
 		JButton btn = new JButton();

@@ -29,17 +29,6 @@ public class Piece {
 		this.move = 0;
 	}
 
-	public Piece(PieceType name, Rule rule, int color, int score, String linkImg) {
-		super();
-		this.type = name;
-		this.acronym = ' ';
-		this.rule = rule;
-		this.color = color;
-		this.score = score;
-		this.linkImg = linkImg;
-		this.move = 0;
-	}
-
 	public Piece(PieceType name, char acronym, Rule rule, int color, int score, String linkImg) {
 		super();
 		this.type = name;
@@ -108,6 +97,10 @@ public class Piece {
 
 	public int getMove() {
 		return move;
+	}
+	
+	public void updateMove(){
+		this.move++;
 	}
 
 	public void setMove(int move) {
