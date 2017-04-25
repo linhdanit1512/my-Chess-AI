@@ -9,7 +9,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-public class ChessRecord extends JPanel {
+import core.Record;
+
+public class ChessRecord extends JPanel{
 	private static final long serialVersionUID = -942014659208561589L;
 	private JPanel pnRecord, pnRecordContent;
 	private JList<Record> jlist;
@@ -18,7 +20,7 @@ public class ChessRecord extends JPanel {
 	DecoButton deco = new DecoButton();
 
 	public ChessRecord() {
-		setMaximumSize(new Dimension(250, 1000));
+		setSize(new Dimension(250, 500));
 		createRecordPane();
 	}
 
@@ -30,15 +32,17 @@ public class ChessRecord extends JPanel {
 		pnRecord.setPreferredSize(new Dimension(250, getHeight()));
 
 		pnRecordContent = new JPanel();
-		DefaultListModel<Record> model = new DefaultListModel<>();
+		model = new DefaultListModel<Record>();
 		jlist = new JList<Record>(model);
+		jlist.setFixedCellHeight(30);
+		jlist.setAutoscrolls(true);
+		jlist.setCellRenderer(new RecordRendered());
 		JScrollPane scroll = new JScrollPane(jlist);
 		pnRecordContent.add(scroll, BorderLayout.CENTER);
 
 		JPanel pnRedoUndo = new JPanel();
-		btnRedo = new JButton(deco.resizeImage(40, 60, "image\\redo.png"));
-
-		btnUndo = new JButton(deco.resizeImage(40, 60, "image\\undo.png"));
+		btnUndo = new JButton(deco.resizeImage(40, 60, "image\\redo.png"));
+		btnRedo = new JButton(deco.resizeImage(40, 60, "image\\undo.png"));
 		pnRedoUndo.add(btnUndo);
 		pnRedoUndo.add(btnRedo);
 
@@ -49,7 +53,7 @@ public class ChessRecord extends JPanel {
 
 	}
 
-	public void addList(Record record) {
+	public void add(Record record) {
 		if (model == null)
 			model = new DefaultListModel<>();
 		model.addElement(record);
@@ -71,4 +75,5 @@ public class ChessRecord extends JPanel {
 	public void setJlist(JList<Record> jlist) {
 		this.jlist = jlist;
 	}
+
 }

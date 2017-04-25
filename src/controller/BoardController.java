@@ -18,12 +18,12 @@ import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import action.ChessAction;
 import action.Move;
-import chess.ColorPiece;
 import chess.Piece;
 import chess.PieceType;
 import core.ChessBoard;
 import core.Location;
 import core.Player;
+import core.Record;
 import core.Sound;
 import gui.Board;
 import rule.Castling;
@@ -33,11 +33,13 @@ public class BoardController implements MouseListener, ActionListener {
 	Board view;
 	ChessAction action;
 	int player;
+	RecordController record;
 
 	public BoardController(ChessBoard model, Board view) {
 		super();
 		this.model = model;
 		this.view = view;
+		this.record = new RecordController(this);
 		player = model.getPlayer();
 		init();
 	}
@@ -60,8 +62,8 @@ public class BoardController implements MouseListener, ActionListener {
 			for (int j = 0; j < 8; j++) {
 				if (model.pieceBoard[i][j] != null) {
 					view.btnBoard[i][j].setIcon(new ImageIcon("image\\" + model.pieceBoard[i][j].getLinkImg()));
-					// view.btnBoard[i][j].addMouseListener(this);
 				}
+				// view.btnBoard[i][j].addMouseListener(this);
 				view.btnBoard[i][j].addActionListener(this);
 			}
 		}
@@ -186,39 +188,22 @@ public class BoardController implements MouseListener, ActionListener {
 	List<Location> listTMPMove = new ArrayList<Location>();
 	Sound sound = new Sound();
 	int count = 0;
-	boolean checkCastlingWhite = false, checkCastlingBlack = false;
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				if (view.btnBoard[i][j] == e.getSource()) {
+					/**
+					 * chon quan co lan dau hoac chon quan co khac
+					 */
 					if (from == null || (model.getPieceAt(new Location(i, j)) != null
 							&& model.getPieceAt(new Location(i, j)).getColor() == model.getPlayer())) {
-						for (Location l : listTMPMove) {
-							view.btnBoard[l.getX()][l.getY()].setBorder(null);
-							view.btnBoard[l.getX()][l.getY()].setBorderPainted(false);
-						}
-						listTMPMove.clear();
+
 						if (view.btnBoard[i][j] != null && model.pieceBoard[i][j] != null) {
 							if (model.pieceBoard[i][j].getColor() == model.getPlayer()) {
-								from = new Location(i, j);
-								if (to != null) {
-									view.btnBoard[to.getX()][to.getY()].setBorder(null);
-									to = null;
-								}
-								listTMPMove.add(from);
-								view.btnBoard[i][j].setBorderPainted(true);
-								view.btnBoard[i][j]
-										.setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
-								// System.out.println(getAllRule().get(model.getPieceAt(from))+"dddddd");
-								if (getAllRule().get(model.getPieceAt(from)) != null)
-									for (Location l : getAllRule().get(model.getPieceAt(from))) {
-										listTMPMove.add(l);
-										view.btnBoard[l.getX()][l.getY()].setBorderPainted(true);
-										view.btnBoard[l.getX()][l.getY()].setBorder(
-												BorderFactory.createEtchedBorder(2, Color.BLUE, Color.GREEN));
-									}
+								Piece piece = model.pieceBoard[i][j];
+								click(piece);
 								return;
 							}
 						}
@@ -226,91 +211,125 @@ public class BoardController implements MouseListener, ActionListener {
 
 					if (from != null && to == null) {
 						to = new Location(i, j);
-						if (from.equals(to)) {
-
-							for (Location l : listTMPMove) {
-								view.btnBoard[l.getX()][l.getY()].setBorder(null);
-								view.btnBoard[l.getX()][l.getY()].setBorderPainted(false);
-							}
-							listTMPMove.clear();
-							from = null;
-							to = null;
-							return;
-						}
-						Move move = new Move(model.getPieceAt(from), to);
-
-						boolean tmp = false;
-						if (move.getFrom().getColor() == ColorPiece.WHITE)
-							tmp = checkCastlingWhite;
-						else if (move.getFrom().getColor() == ColorPiece.BLACK)
-							tmp = checkCastlingBlack;
-						if (tmp == false) {
-							if (isCastling(move)) {
-								int x = move.getTo().getX();
-								int y = move.getTo().getY();
-								if (y == 2) {
-									view.btnBoard[x][3]
-											.setIcon(new ImageIcon("image\\" + model.pieceBoard[x][0].getLinkImg()));
-									view.btnBoard[x][0].setIcon(null);
-								}
-
-								if (y == 6) {
-									view.btnBoard[x][5]
-											.setIcon(new ImageIcon("image\\" + model.pieceBoard[x][7].getLinkImg()));
-									view.btnBoard[x][7].setIcon(null);
-								}
-								view.btnBoard[from.getX()][from.getY()].setIcon(null);
-							}
-						}
-						// them vao stack nuoc di nay
-						if (action.push(move)) {
-							sound.playSound("sound\\Move.WAV");
-
-							for (Location l : listTMPMove) {
-								view.btnBoard[l.getX()][l.getY()].setBorder(null);
-								view.btnBoard[l.getX()][l.getY()].setBorderPainted(false);
-							}
-							view.btnBoard[to.getX()][to.getY()].setBorderPainted(true);
-							view.btnBoard[to.getX()][to.getY()]
-									.setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
-							view.btnBoard[to.getX()][to.getY()]
-									.setIcon(new ImageIcon("image\\" + action.peek().getFrom().getLinkImg()));
-
-							// view.btnBoard[from.getX()][from.getY()].setBorderPainted(false);
-							view.btnBoard[from.getX()][from.getY()].setIcon(null);
-
-							if (model.getPlayer() == Player.PLAYER || model.getPlayer() == Player.COMPUTER2)
-								model.setPlayer(Player.PLAYER2);
-							else if (model.getPlayer() == Player.PLAYER2 || model.getPlayer() == Player.COMPUTER)
-								model.setPlayer(Player.PLAYER);
-							System.out.println("System.out.println(action.push(new Move(board.pieceBoard[" + from.getX()
-									+ "][" + from.getY() + "], new Location(" + to.getX() + ", " + to.getY() + "))));");
-							model.setMeasurements(model.getPlayer(), model.pieceBoard);
-							listTMPMove.clear();
-							clearMapRule();
-							from = null;
-							// view.pnBoard.repaint();
-							// view.repaint();
-							view.validate();
-							model.printBoard();
-						} else {
-							to = null;
-							return;
-						}
+						move(to);
 					}
 				}
 			}
 		}
 	}
 
+	public void click(Piece piece) {
+		for (Location l : listTMPMove) {
+			view.btnBoard[l.getX()][l.getY()].setBorder(null);
+			view.btnBoard[l.getX()][l.getY()].setBorderPainted(false);
+		}
+		listTMPMove.clear();
+		if (piece != null) {
+			if (piece.getColor() == model.getPlayer()) {
+				from = piece.getLocation();
+				if (to != null) {
+					view.btnBoard[to.getX()][to.getY()].setBorder(null);
+					to = null;
+				}
+				listTMPMove.add(from);
+				view.btnBoard[from.getX()][from.getY()].setBorderPainted(true);
+				view.btnBoard[from.getX()][from.getY()]
+						.setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
+				if (getAllRule().get(model.getPieceAt(from)) != null)
+					for (Location l : getAllRule().get(model.getPieceAt(from))) {
+						listTMPMove.add(l);
+						view.btnBoard[l.getX()][l.getY()].setBorderPainted(true);
+						view.btnBoard[l.getX()][l.getY()]
+								.setBorder(BorderFactory.createEtchedBorder(2, Color.BLUE, Color.GREEN));
+					}
+				return;
+			}
+		}
+	}
+
+	public void move(Location to) {
+		if (from.equals(to)) {
+
+			for (Location l : listTMPMove) {
+				view.btnBoard[l.getX()][l.getY()].setBorder(null);
+				view.btnBoard[l.getX()][l.getY()].setBorderPainted(false);
+			}
+			listTMPMove.clear();
+			from = null;
+			to = null;
+			return;
+		}
+		Move move = new Move(model.getPieceAt(from), to);
+
+		if (isCastling(move)) {
+			int x = move.getTo().getX();
+			int y = move.getTo().getY();
+			if (y == 2) {
+				view.btnBoard[x][3].setIcon(new ImageIcon("image\\" + model.pieceBoard[x][0].getLinkImg()));
+				view.btnBoard[x][0].setIcon(null);
+			}
+
+			if (y == 6) {
+				view.btnBoard[x][5].setIcon(new ImageIcon("image\\" + model.pieceBoard[x][7].getLinkImg()));
+				view.btnBoard[x][7].setIcon(null);
+			}
+			view.btnBoard[from.getX()][from.getY()].setIcon(null);
+		}
+		// them vao stack nuoc di nay
+		if (action.push(move)) {
+			sound.playSound("sound\\Move.WAV");
+
+			for (Location l : listTMPMove) {
+				view.btnBoard[l.getX()][l.getY()].setBorder(null);
+				view.btnBoard[l.getX()][l.getY()].setBorderPainted(false);
+			}
+			view.btnBoard[to.getX()][to.getY()].setBorderPainted(true);
+			view.btnBoard[to.getX()][to.getY()].setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
+			view.btnBoard[to.getX()][to.getY()]
+					.setIcon(new ImageIcon("image\\" + action.peek().getFrom().getLinkImg()));
+
+			// view.btnBoard[from.getX()][from.getY()].setBorderPainted(false);
+			view.btnBoard[from.getX()][from.getY()].setIcon(null);
+
+			String players = "";
+			if (player == Player.COMPUTER) {
+				players = "COMPUTER:";
+			} else if (player == Player.PLAYER) {
+				players = "YOU:";
+			}
+
+			record.view.pnRecord.add(new Record(action.getCount(), players, move));
+
+			if (model.getPlayer() == Player.PLAYER || model.getPlayer() == Player.COMPUTER2)
+				model.setPlayer(Player.PLAYER2);
+			else if (model.getPlayer() == Player.PLAYER2 || model.getPlayer() == Player.COMPUTER)
+				model.setPlayer(Player.PLAYER);
+			System.out.println("System.out.println(action.push(new Move(board.pieceBoard[" + from.getX() + "]["
+					+ from.getY() + "], new Location(" + to.getX() + ", " + to.getY() + "))));");
+			model.setMeasurements(model.getPlayer(), model.pieceBoard);
+			listTMPMove.clear();
+			clearMapRule();
+			from = null;
+			view.validate();
+			model.printBoard();
+		} else {
+			to = null;
+			return;
+		}
+	}
+
 	public boolean isCastling(Move move) {
-		if (move.getFrom().getType().equals(PieceType.KING)) {
-			if (move.getFrom().getRule().getRule() != null) {
-				Castling castling = (Castling) move.getFrom().getRule().getRule();
-				List<Location> list = castling.castling(move.getFrom());
-				if (list != null && !list.isEmpty()) {
-					if (list.contains(move.getTo())) {
-						return true;
+		if (move != null) {
+			if (move.getFrom() != null && move.getFrom().getMove() > 0)
+				return false;
+			if (move.getFrom().getType().equals(PieceType.KING)) {
+				if (move.getFrom().getRule().getRule() != null) {
+					Castling castling = (Castling) move.getFrom().getRule().getRule();
+					List<Location> list = castling.castling(move.getFrom());
+					if (list != null && !list.isEmpty()) {
+						if (list.contains(move.getTo())) {
+							return true;
+						}
 					}
 				}
 			}

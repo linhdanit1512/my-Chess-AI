@@ -81,7 +81,7 @@ public class Move {
 
 	@Override
 	public String toString() {
-		return "" + getFrom().getAcronym() + getFrom().getLocation().toWordString()+"→" + getTo().toWordString();
+		return "" + getFrom().getAcronym() + getFrom().getLocation().toWordString() + " → " + getTo().toWordString();
 	}
 
 }

@@ -16,6 +16,7 @@ public class ChessAction implements Observer {
 	private Stack<Move> moves = new Stack<Move>();
 	Observable ob;
 	public ChessBoard board;
+	private int count =0;
 
 	public static void main(String[] args) {
 		ChessBoard chess = new ChessBoard();
@@ -45,6 +46,7 @@ public class ChessAction implements Observer {
 			return false;
 		if (move.getFrom().getColor() == board.getPlayer())
 			if (move.getFrom().getRule().getRealLocationCanMove().contains(move.getTo())) {
+				count++;
 				if (castling(move))
 					return true;
 				move.setPrisoner(board.getPieceAt(move.getTo()));
@@ -94,26 +96,28 @@ public class ChessAction implements Observer {
 
 	Stack<Move> undo = new Stack<Move>();
 
-	public Move redo() {
+	public Move undo() {
 		if (undo.size() <= 6) {
 			Move move = moves.peek();
 			undo.push(move);
 			Piece pieceFrom = move.getFrom();
-			Piece pieceTo = move.getPrisoner();
+			Piece prisoner = move.getPrisoner();
 			Location lo = move.getTo();
 			Location preLoca = pieceFrom.getLocation();
-			board.pieceBoard[preLoca.getX()][preLoca.getY()] = board.pieceBoard[lo.getX()][lo.getY()];
-
+			board.setPieceAtLocation(preLoca, board.pieceBoard[lo.getX()][lo.getY()]);
+			board.setPieceAtLocation(lo, prisoner);
+			count--;
 			return moves.pop();
 		}
 		return null;
 	}
 
-	public Move undo() {
+	public Move redo() {
 		if (undo.isEmpty())
 			return null;
 		else {
-			moves.push(undo.peek());
+			Move move = undo.peek();
+			push(move);
 			return undo.pop();
 		}
 	}
@@ -160,5 +164,15 @@ public class ChessAction implements Observer {
 	public void setMoves(Stack<Move> moves) {
 		this.moves = moves;
 	}
+
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
+	}
+	
+	
 
 }

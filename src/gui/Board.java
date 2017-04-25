@@ -22,8 +22,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
+import action.Move;
+import chess.Piece;
 import controller.BoardController;
 import core.ChessBoard;
+import core.Location;
 
 public class Board extends JFrame implements ActionListener {
 
@@ -31,7 +34,8 @@ public class Board extends JFrame implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 3032926387546045087L;
-	public JPanel pnPlayer1, pnPlayer2, pnBoard, pnRecord;
+	public JPanel pnPlayer1, pnPlayer2, pnBoard;
+	public ChessRecord pnRecord;
 	public JButton btnBoard[][];
 	JButton btnRedo, btnUndo;
 	DecoButton create = new DecoButton();
@@ -131,11 +135,13 @@ public class Board extends JFrame implements ActionListener {
 		pnBoard.setSize(dboard);
 
 		btnBoard = new JButton[8][8];
-		// Dimension d = new Dimension(520 / 8, 520 / 8);
+		Dimension d = new Dimension(520 / 8, 520 / 8);
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				btnBoard[i][j] = create.paintButton();
 				btnBoard[i][j].setFocusPainted(true);
+				btnBoard[i][j].setPreferredSize(d);
+				btnBoard[i][j].setMaximumSize(d);
 				pnBoard.add(btnBoard[i][j]);
 			}
 		}
@@ -175,6 +181,41 @@ public class Board extends JFrame implements ActionListener {
 	public void createRecordPane() {
 		pnRecord = new ChessRecord();
 		getContentPane().add(pnRecord, BorderLayout.EAST);
+	}
+
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+
+	public void redo(Move move) {
+		Piece pieceFrom = move.getFrom();
+		Location to = move.getTo();
+		Location preLoca = pieceFrom.getLocation();
+		btnBoard[preLoca.getX()][preLoca.getY()].setIcon(null);
+		btnBoard[to.getX()][to.getY()].setIcon(new ImageIcon(pieceFrom.getLinkImg()));
+	}
+
+	public void undo(Move move) {
+		Piece pieceFrom = move.getFrom();
+		Piece prisoner = move.getPrisoner();
+		Location to = move.getTo();
+		Location preLoca = pieceFrom.getLocation();
+		btnBoard[preLoca.getX()][preLoca.getY()].setIcon(new ImageIcon("image\\" + pieceFrom.getLinkImg()));
+		if (prisoner != null)
+			btnBoard[to.getX()][to.getY()].setIcon(new ImageIcon(prisoner.getLinkImg()));
+		else
+			btnBoard[to.getX()][to.getY()].setIcon(null);
 	}
 
 	public void setIcon(String icon) {
