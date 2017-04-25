@@ -26,7 +26,7 @@ public class PromotionMessage extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 3708766205764814884L;
 	Piece piece;
 	Piece pawn;
-	CreateButton create = new CreateButton();
+	DecoButton create = new DecoButton();
 	JButton btnQueen, btnRook, btnBishop, btnKnight;
 
 	public PromotionMessage(Piece pawn) {

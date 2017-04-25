@@ -15,7 +15,7 @@ import rule.Castling;
 public class ChessAction implements Observer {
 	private Stack<Move> moves = new Stack<Move>();
 	Observable ob;
-	ChessBoard board;
+	public ChessBoard board;
 
 	public static void main(String[] args) {
 		ChessBoard chess = new ChessBoard();
@@ -47,6 +47,7 @@ public class ChessAction implements Observer {
 			if (move.getFrom().getRule().getRealLocationCanMove().contains(move.getTo())) {
 				if (castling(move))
 					return true;
+				move.setPrisoner(board.getPieceAt(move.getTo()));
 				moves.push(move);
 				board.setPieceAtLocation(move.getTo(), move.getFrom());
 				board.getPieceAt(move.getTo()).updateMove();
@@ -62,22 +63,24 @@ public class ChessAction implements Observer {
 				if (move.getFrom().getRule().getRule() != null) {
 					Castling castling = (Castling) move.getFrom().getRule().getRule();
 					List<Location> list = castling.castling(move.getFrom());
-					if (list.contains(move.getTo())) {
-						moves.push(move);
-						board.setPieceAtLocation(move.getTo(), move.getFrom());
-						board.getPieceAt(move.getTo()).updateMove();
-						int x = move.getTo().getX();
-						int y = move.getTo().getY();
-						if (y == 2) {
-							board.setPieceAtLocation(new Location(x, 3), board.pieceBoard[x][0]);
-							board.getPieceAt(new Location(x, 3)).updateMove();
-							return true;
-						}
+					if (list != null && !list.isEmpty()) {
+						if (list.contains(move.getTo())) {
+							moves.push(move);
+							board.setPieceAtLocation(move.getTo(), move.getFrom());
+							board.getPieceAt(move.getTo()).updateMove();
+							int x = move.getTo().getX();
+							int y = move.getTo().getY();
+							if (y == 2) {
+								board.setPieceAtLocation(new Location(x, 3), board.pieceBoard[x][0]);
+								board.getPieceAt(new Location(x, 3)).updateMove();
+								return true;
+							}
 
-						if (y == 6) {
-							board.setPieceAtLocation(new Location(x, 5), board.pieceBoard[x][7]);
-							board.getPieceAt(new Location(x, 5)).updateMove();
-							return true;
+							if (y == 6) {
+								board.setPieceAtLocation(new Location(x, 5), board.pieceBoard[x][7]);
+								board.getPieceAt(new Location(x, 5)).updateMove();
+								return true;
+							}
 						}
 					}
 				}
@@ -93,7 +96,14 @@ public class ChessAction implements Observer {
 
 	public Move redo() {
 		if (undo.size() <= 6) {
-			undo.push(moves.peek());
+			Move move = moves.peek();
+			undo.push(move);
+			Piece pieceFrom = move.getFrom();
+			Piece pieceTo = move.getPrisoner();
+			Location lo = move.getTo();
+			Location preLoca = pieceFrom.getLocation();
+			board.pieceBoard[preLoca.getX()][preLoca.getY()] = board.pieceBoard[lo.getX()][lo.getY()];
+
 			return moves.pop();
 		}
 		return null;

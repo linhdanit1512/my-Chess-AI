@@ -7,11 +7,14 @@ import java.util.Observable;
 import chess.ColorPiece;
 import chess.Piece;
 import chess.PieceType;
-import core.ChessBoard;
 import core.Location;
 
-@SuppressWarnings("serial")
 public class PawnRule extends Rule {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2025447225850627174L;
 
 	public PawnRule(Observable ob, Location location) {
 		super(ob, location);
@@ -74,14 +77,12 @@ public class PawnRule extends Rule {
 	 * @return co phai la thanh hau hay khong
 	 */
 	public boolean pawnPromotion(Location location) {
-		ChessBoard board = (ChessBoard) ob;
-		Piece[][] pieces = board.pieceBoard;
 		int x = location.getX();
 		int y = location.getY();
-		if (pieces[x][y].getType() == PieceType.PAWN) {
-			if (pieces[x][y].getColor() == ColorPiece.BLACK && x == 7)
+		if (board.pieceBoard[x][y].getType() == PieceType.PAWN) {
+			if (board.pieceBoard[x][y].getColor() == ColorPiece.BLACK && x == 7)
 				return true;
-			else if (pieces[x][y].getColor() == ColorPiece.WHITE && x == 0)
+			else if (board.pieceBoard[x][y].getColor() == ColorPiece.WHITE && x == 0)
 				return true;
 		}
 		return false;

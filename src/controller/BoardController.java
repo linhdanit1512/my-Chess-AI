@@ -14,6 +14,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.UIManager;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import action.ChessAction;
 import action.Move;
@@ -43,8 +44,8 @@ public class BoardController implements MouseListener, ActionListener {
 
 	public static void main(String[] args) {
 		try {
-			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-			// UIManager.setLookAndFeel(new NimbusLookAndFeel());
+			// UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+			UIManager.setLookAndFeel(new NimbusLookAndFeel());
 		} catch (Exception e) {
 		}
 		ChessBoard model = new ChessBoard();
@@ -210,13 +211,14 @@ public class BoardController implements MouseListener, ActionListener {
 								view.btnBoard[i][j].setBorderPainted(true);
 								view.btnBoard[i][j]
 										.setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
-
-								for (Location l : getAllRule().get(model.getPieceAt(from))) {
-									listTMPMove.add(l);
-									view.btnBoard[l.getX()][l.getY()].setBorderPainted(true);
-									view.btnBoard[l.getX()][l.getY()]
-											.setBorder(BorderFactory.createEtchedBorder(2, Color.BLUE, Color.GREEN));
-								}
+								// System.out.println(getAllRule().get(model.getPieceAt(from))+"dddddd");
+								if (getAllRule().get(model.getPieceAt(from)) != null)
+									for (Location l : getAllRule().get(model.getPieceAt(from))) {
+										listTMPMove.add(l);
+										view.btnBoard[l.getX()][l.getY()].setBorderPainted(true);
+										view.btnBoard[l.getX()][l.getY()].setBorder(
+												BorderFactory.createEtchedBorder(2, Color.BLUE, Color.GREEN));
+									}
 								return;
 							}
 						}
@@ -306,8 +308,10 @@ public class BoardController implements MouseListener, ActionListener {
 			if (move.getFrom().getRule().getRule() != null) {
 				Castling castling = (Castling) move.getFrom().getRule().getRule();
 				List<Location> list = castling.castling(move.getFrom());
-				if (list.contains(move.getTo())) {
-					return true;
+				if (list != null && !list.isEmpty()) {
+					if (list.contains(move.getTo())) {
+						return true;
+					}
 				}
 			}
 		}

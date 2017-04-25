@@ -148,16 +148,30 @@ public class ChessBoard extends Observable implements Serializable {
 			removePiece(location);
 		Location tmp = piece.getLocation();
 		pieceBoard[x][y] = piece;
-		if (pieceBoard[x][y].getColor() == ColorPiece.WHITE)
+		int count = 0;
+		if (pieceBoard[x][y].getColor() == ColorPiece.WHITE) {
 			for (Piece a : listWhiteAlliance) {
-				if (a.equals(piece) && a.getLocation() == piece.getLocation())
+				if (a.equals(piece) && a.getLocation() == piece.getLocation()) {
 					a.setLocation(location);
+					count++;
+				}
 			}
-		else if (pieceBoard[x][y].getColor() == ColorPiece.BLACK)
+			if (count == 0) {
+				listWhiteAlliance.add(piece);
+			}
+		}
+
+		else if (pieceBoard[x][y].getColor() == ColorPiece.BLACK) {
 			for (Piece a : listBlackAlliance) {
-				if (a.equals(piece) && a.getLocation() == piece.getLocation())
+				if (a.equals(piece) && a.getLocation() == piece.getLocation()) {
 					a.setLocation(location);
+					count++;
+				}
 			}
+			if (count == 0) {
+				listBlackAlliance.add(piece);
+			}
+		}
 
 		this.pieceBoard[x][y].setLocation(location);
 		this.pieceBoard[x][y].getRule().setLocation(location);

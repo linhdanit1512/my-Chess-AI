@@ -34,7 +34,7 @@ public class Board extends JFrame implements ActionListener {
 	public JPanel pnPlayer1, pnPlayer2, pnBoard, pnRecord;
 	public JButton btnBoard[][];
 	JButton btnRedo, btnUndo;
-	CreateButton create = new CreateButton();
+	DecoButton create = new DecoButton();
 	JLayeredPane layerPop;
 
 	public JLabel lblPieceDragged;
@@ -173,23 +173,8 @@ public class Board extends JFrame implements ActionListener {
 	}
 
 	public void createRecordPane() {
-
-		pnRecord = new JPanel();
-		pnRecord.setLayout(new BorderLayout());
-		pnRecord.setMinimumSize(new Dimension(250, getHeight()));
-		pnRecord.setPreferredSize(new Dimension(250, getHeight()));
-
-		JPanel pnRedoUndo = new JPanel();
-		btnRedo = new JButton(new ImageIcon("image\\redo.png"));
-
-		btnUndo = new JButton(new ImageIcon("image\\undo.png"));
-		pnRedoUndo.add(btnUndo);
-		pnRedoUndo.add(btnRedo);
-
-		pnRecord.add(pnRedoUndo, BorderLayout.SOUTH);
-
+		pnRecord = new ChessRecord();
 		getContentPane().add(pnRecord, BorderLayout.EAST);
-
 	}
 
 	public void setIcon(String icon) {

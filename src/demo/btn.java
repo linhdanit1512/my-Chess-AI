@@ -12,6 +12,10 @@ import javax.swing.JPanel;
 
 public class btn extends JFrame implements ActionListener {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9118723935881874995L;
 	JButton btn;
 
 	public btn() {

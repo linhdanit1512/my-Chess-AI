@@ -114,20 +114,20 @@ public abstract class Rule implements Serializable, Observer {
 					// dich
 					List<Location> listCheckmateLocat = getDistanceLocation(king.getLocation(), enemy.getLocation());
 					listCheckmateLocat.add(enemy.getLocation());
-					
+
 					List<Piece> myPieces = new ArrayList<Piece>();
-					if(king.getColor()==ColorPiece.BLACK)
+					if (king.getColor() == ColorPiece.BLACK)
 						myPieces = board.listBlackAlliance;
-					else if(king.getColor()==ColorPiece.WHITE)
+					else if (king.getColor() == ColorPiece.WHITE)
 						myPieces = board.listWhiteAlliance;
-					for(Piece p : myPieces){
+					for (Piece p : myPieces) {
 						List<Location> tmp = new ArrayList<Location>();
 						List<Location> myLocatsMove = p.getRule().getNormalRule();
-						for(Location l : listCheckmateLocat){
-							if(myLocatsMove.contains(l))
+						for (Location l : listCheckmateLocat) {
+							if (myLocatsMove.contains(l))
 								tmp.add(l);
 						}
-						if(tmp.size()>0)
+						if (tmp.size() > 0)
 							listResult.put(p, tmp);
 					}
 				}
@@ -165,7 +165,9 @@ public abstract class Rule implements Serializable, Observer {
 					List<Location> normalRule = piece.getRule().getNormalRule();
 					Piece p = checkBetweenKingAndEnemy(piece);
 					if (normalRule.contains(p)) {
-						return getDistanceLocation(p.getLocation(), location);
+						result.addAll(getDistanceLocation(p.getLocation(), location));
+						result.add(p.getLocation());
+						return result;
 					} else if (!normalRule.contains(p)) {
 						List<Location> tmp = new ArrayList<Location>();
 						List<Location> tmp2 = getDistanceLocation(p.getLocation(), location);
@@ -187,15 +189,13 @@ public abstract class Rule implements Serializable, Observer {
 	/**
 	 * 
 	 * @param piece:
-	 *            quan co dang xet
+	 *            quan co dang xet kiem tra o giua
 	 * @return neu quan co dang nam tren duong co the di cua doi phuong va che
 	 *         cho vua thi return quan co do cua doi phuong
 	 * 
 	 *         vi du: X[4,5], V[0,5], -H[7,5]
 	 * 
 	 *         se tra ve vi tri cua quan Hau la [7,5]
-	 * 
-	 * 
 	 * 
 	 */
 	public Piece checkBetweenKingAndEnemy(Piece piece) {
@@ -209,17 +209,19 @@ public abstract class Rule implements Serializable, Observer {
 			List<Piece> list = getEnemyControlAtLocation(piece.getLocation(), piece.getColor());
 			if (list != null && !list.isEmpty()) {
 				for (Piece p : list) {
-					// neu 3 quan nam tren 1 duong cheo
 
 					// neu khoang cach tu vua toi doi phuong > khoang cach
 					// tu quan dang xet toi doi phuong thi nghia la quan
 					// dang set nam giua vua va quan cua doi phuong
 
-					if (checkCross(kingLocation, piece.getLocation())
+					if (checkCross(kingLocation, piece.getLocation()) && checkCross(kingLocation, p.getLocation())
 							&& checkCross(piece.getLocation(), p.getLocation())) {
 						if (Math.abs(kingLocation.getX() - p.getLocation().getX()) > Math
 								.abs(piece.getLocation().getX() - p.getLocation().getX()))
-							return p;
+							if (p.getType() == PieceType.PAWN)
+								continue;
+							else
+								return p;
 						else
 							continue;
 					} else if (checkHorizontal(kingLocation, piece.getLocation())
@@ -296,8 +298,9 @@ public abstract class Rule implements Serializable, Observer {
 					// thang, cho nen o day neu quan co o o^ cung cot voi vi tri
 					// location la quan chot thi ko can xet
 					//
-					if (piece.getType() == PieceType.PAWN && piece.getLocation().getY() == location.getY())
-						continue;
+					// if (piece.getType() == PieceType.PAWN &&
+					// piece.getLocation().getY() == location.getY())
+					// continue;
 					// neu quan co o vi tri i,j co the di toi vi tri location
 					// thi add
 					if (piece.getRule().getAllLocationControl().contains(location)) {
@@ -361,8 +364,8 @@ public abstract class Rule implements Serializable, Observer {
 	 *            toa do x cua o can toi
 	 * @param paramY:
 	 *            toa do y cua o can toi
-	 * @return: 1: o co can toi trong; 2: o co muon toi la quan khac mau; 0:
-	 *          khong the toi
+	 * @return: 1: o co can toi trong; 2: o co muon toi la quan khac mau; 3: o
+	 *          muon toi la quan cung mau; 0: khong the toi
 	 */
 	public int checkValidTile(int paramX, int paramY) {
 		if (location == null)
@@ -419,7 +422,5 @@ public abstract class Rule implements Serializable, Observer {
 	public Rule getRule() {
 		return rule;
 	}
-	
-	
 
 }
