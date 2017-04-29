@@ -16,6 +16,18 @@ public class Piece {
 	public Piece() {
 		super();
 	}
+	public Piece(Piece piece){
+		super();
+		this.location = piece.getLocation();
+		this.type = piece.getType();
+		this.acronym = piece.getAcronym();
+		this.rule = piece.getRule();
+		this.color = piece.getColor();
+		this.score = piece.getScore();
+		this.linkImg = piece.getLinkImg();
+		this.move = piece.getMove();
+		this.rule.setLocation(location);
+	}
 
 	public Piece(Location location, PieceType type, char acronym, Rule rule, int color, int score, String linkImg) {
 		super();
@@ -101,6 +113,10 @@ public class Piece {
 	
 	public void updateMove(){
 		this.move++;
+	}
+	
+	public void updateUndoMove(){
+		this.move--;
 	}
 
 	public void setMove(int move) {

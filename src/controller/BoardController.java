@@ -141,7 +141,6 @@ public class BoardController implements MouseListener, ActionListener {
 
 				List<Location> rule = getAllRule().get(piece);
 				if (rule != null) {
-					System.out.println(piece.getLinkImg() + "\n" + rule);
 					for (Location l : rule) {
 						btnEntered.add(view.btnBoard[l.getX()][l.getY()]);
 						view.btnBoard[l.getX()][l.getY()].setBorderPainted(true);
@@ -259,7 +258,8 @@ public class BoardController implements MouseListener, ActionListener {
 			to = null;
 			return;
 		}
-		Move move = new Move(model.getPieceAt(from), to);
+
+		Move move = new Move(from, to, model.getPieceAt(from), model.getPieceAt(to));
 
 		if (isCastling(move)) {
 			int x = move.getTo().getX();
@@ -286,26 +286,21 @@ public class BoardController implements MouseListener, ActionListener {
 			view.btnBoard[to.getX()][to.getY()].setBorderPainted(true);
 			view.btnBoard[to.getX()][to.getY()].setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
 			view.btnBoard[to.getX()][to.getY()]
-					.setIcon(new ImageIcon("image\\" + action.peek().getFrom().getLinkImg()));
+					.setIcon(new ImageIcon("image\\" + action.peek().getPieceFrom().getLinkImg()));
 
 			// view.btnBoard[from.getX()][from.getY()].setBorderPainted(false);
 			view.btnBoard[from.getX()][from.getY()].setIcon(null);
 
-			String players = "";
-			if (player == Player.COMPUTER) {
-				players = "COMPUTER:";
-			} else if (player == Player.PLAYER) {
-				players = "YOU:";
-			}
+			String players = player();
 
 			record.view.pnRecord.add(new Record(action.getCount(), players, move));
 
 			if (model.getPlayer() == Player.PLAYER || model.getPlayer() == Player.COMPUTER2)
-				model.setPlayer(Player.PLAYER2);
+				model.setPlayer(Player.COMPUTER);
 			else if (model.getPlayer() == Player.PLAYER2 || model.getPlayer() == Player.COMPUTER)
 				model.setPlayer(Player.PLAYER);
-			System.out.println("System.out.println(action.push(new Move(board.pieceBoard[" + from.getX() + "]["
-					+ from.getY() + "], new Location(" + to.getX() + ", " + to.getY() + "))));");
+			System.out.println("System.out.println(action.push(new Move(new Location(" + from.getX() + ","
+					+ from.getY() + "), new Location(" + to.getX() + ", " + to.getY() + "))));");
 			model.setMeasurements(model.getPlayer(), model.pieceBoard);
 			listTMPMove.clear();
 			clearMapRule();
@@ -320,12 +315,12 @@ public class BoardController implements MouseListener, ActionListener {
 
 	public boolean isCastling(Move move) {
 		if (move != null) {
-			if (move.getFrom() != null && move.getFrom().getMove() > 0)
+			if (move.getPieceFrom() != null && move.getPieceFrom().getMove() > 0)
 				return false;
-			if (move.getFrom().getType().equals(PieceType.KING)) {
-				if (move.getFrom().getRule().getRule() != null) {
-					Castling castling = (Castling) move.getFrom().getRule().getRule();
-					List<Location> list = castling.castling(move.getFrom());
+			if (move.getPieceFrom().getType().equals(PieceType.KING)) {
+				if (move.getPieceFrom().getRule().getRule() != null) {
+					Castling castling = (Castling) move.getPieceFrom().getRule().getRule();
+					List<Location> list = castling.castling(move.getPieceFrom());
 					if (list != null && !list.isEmpty()) {
 						if (list.contains(move.getTo())) {
 							return true;
@@ -335,6 +330,16 @@ public class BoardController implements MouseListener, ActionListener {
 			}
 		}
 		return false;
+	}
+
+	public String player() {
+		String players = "";
+		if (player == Player.COMPUTER) {
+			players = "COMPUTER:";
+		} else if (player == Player.PLAYER) {
+			players = "YOU:";
+		}
+		return players;
 	}
 
 }

@@ -41,8 +41,8 @@ public class ChessRecord extends JPanel{
 		pnRecordContent.add(scroll, BorderLayout.CENTER);
 
 		JPanel pnRedoUndo = new JPanel();
-		btnUndo = new JButton(deco.resizeImage(40, 60, "image\\redo.png"));
-		btnRedo = new JButton(deco.resizeImage(40, 60, "image\\undo.png"));
+		btnRedo = new JButton(deco.resizeImage(40, 60, "image\\redo.png"));
+		btnUndo = new JButton(deco.resizeImage(40, 60, "image\\undo.png"));
 		pnRedoUndo.add(btnUndo);
 		pnRedoUndo.add(btnRedo);
 

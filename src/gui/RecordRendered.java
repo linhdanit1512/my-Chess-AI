@@ -21,16 +21,20 @@ public class RecordRendered extends JPanel implements ListCellRenderer<Record> {
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setPreferredSize(new Dimension(250, 30));
 		setBackground(Color.WHITE);
-		int height = 25;
+		int height = 35;
 		lblOrder = new JLabel();
-		lblOrder.setPreferredSize(new Dimension(height, 50));
+		lblOrder.setPreferredSize(new Dimension(50, height));
 
 		lblPlayer = new JLabel();
-		lblPlayer.setPreferredSize(new Dimension(height, 80));
+		lblPlayer.setPreferredSize(new Dimension(80, height));
 
 		lblMove = new JLabel();
-		lblMove.setPreferredSize(new Dimension(height, 120));
-
+		lblMove.setPreferredSize(new Dimension(120, height));
+		
+		lblOrder.setOpaque(true);
+    	lblPlayer.setOpaque(true);
+    	lblMove.setOpaque(true);
+    	
 		add(lblOrder);
 		add(lblPlayer);
 		add(lblMove);
@@ -63,9 +67,27 @@ public class RecordRendered extends JPanel implements ListCellRenderer<Record> {
 	@Override
 	public Component getListCellRendererComponent(JList<? extends Record> list, Record record, int index,
 			boolean isSelected, boolean cellHasFocus) {
-		lblOrder.setText(record.getOrder()+".");
+		lblOrder.setText(record.getOrder() + ".");
 		lblPlayer.setText(record.getPlayer());
 		lblMove.setText(record.getMove().toString());
+		
+
+		
+		 // when select item
+	    if (isSelected) {
+	    	Color color = new Color(252,203,56);
+	    	lblOrder.setBackground(color);
+	    	lblPlayer.setBackground(color);
+	    	lblMove.setBackground(color);
+	        setBackground(color);
+	    } else { // when don't select
+	    	Color color = Color.WHITE;
+	    	lblOrder.setBackground(color);
+	    	lblPlayer.setBackground(color);
+	    	lblMove.setBackground(color);
+	        setBackground(color);
+	    }
+		
 		return this;
 	}
 

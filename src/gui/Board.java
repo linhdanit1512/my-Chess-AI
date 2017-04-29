@@ -199,7 +199,7 @@ public class Board extends JFrame implements ActionListener {
 	//
 
 	public void redo(Move move) {
-		Piece pieceFrom = move.getFrom();
+		Piece pieceFrom = move.getPieceFrom();
 		Location to = move.getTo();
 		Location preLoca = pieceFrom.getLocation();
 		btnBoard[preLoca.getX()][preLoca.getY()].setIcon(null);
@@ -207,7 +207,7 @@ public class Board extends JFrame implements ActionListener {
 	}
 
 	public void undo(Move move) {
-		Piece pieceFrom = move.getFrom();
+		Piece pieceFrom = move.getPieceFrom();
 		Piece prisoner = move.getPrisoner();
 		Location to = move.getTo();
 		Location preLoca = pieceFrom.getLocation();
