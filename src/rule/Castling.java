@@ -51,7 +51,7 @@ public class Castling extends Rule {
 					List<Piece> liTmp = new ArrayList<Piece>();
 					// lay danh sach cac quan dich dang chieu vua
 					// neu vua dang bi chieu thi ko duoc nhap thanh
-					liTmp.addAll(getEnemyControlAtLocation(king.getLocation(), king.getColor()));
+					liTmp.addAll(getEnemyControlAtLocation(king.getLocation(), king.getAlliance()));
 					if (liTmp != null && !liTmp.isEmpty()) {
 						return null;
 					}
@@ -65,7 +65,7 @@ public class Castling extends Rule {
 						// kiem tra la quan xe phai chua di chuyen va cung mau
 						// voi
 						// vua
-						if (PieceType.ROOK.equals(pieces[x][0].getType()) && pieces[x][0].getColor() == king.getColor()
+						if (PieceType.ROOK.equals(pieces[x][0].getType()) && pieces[x][0].getAlliance() == king.getAlliance()
 								&& pieces[x][0].getMove() == 0) {
 							/**
 							 * kiem tra vi tri ma quan vua di qua (2 o ben trai
@@ -73,8 +73,8 @@ public class Castling extends Rule {
 							 * ko thi add vao list
 							 */
 							liTmp.clear();
-							liTmp.addAll(getEnemyControlAtLocation(new Location(x, 2), king.getColor()));
-							liTmp.addAll(getEnemyControlAtLocation(new Location(x, 3), king.getColor()));
+							liTmp.addAll(getEnemyControlAtLocation(new Location(x, 2), king.getAlliance()));
+							liTmp.addAll(getEnemyControlAtLocation(new Location(x, 3), king.getAlliance()));
 							if (liTmp == null || liTmp.isEmpty()) {
 								list.add(new Location(x, 2));
 							}
@@ -84,7 +84,7 @@ public class Castling extends Rule {
 					// nhap thanh gan
 
 					if (pieces[x][5] == null && pieces[x][6] == null) {
-						if (PieceType.ROOK.equals(pieces[x][7].getType()) && pieces[x][7].getColor() == king.getColor()
+						if (PieceType.ROOK.equals(pieces[x][7].getType()) && pieces[x][7].getAlliance() == king.getAlliance()
 								&& pieces[x][7].getMove() == 0) {
 							/**
 							 * kiem tra vi tri ma quan vua di qua (2 o ben trai
@@ -92,8 +92,8 @@ public class Castling extends Rule {
 							 * ko thi add vao list
 							 */
 							liTmp.clear();
-							liTmp.addAll(getEnemyControlAtLocation(new Location(x, 5), king.getColor()));
-							liTmp.addAll(getEnemyControlAtLocation(new Location(x, 6), king.getColor()));
+							liTmp.addAll(getEnemyControlAtLocation(new Location(x, 5), king.getAlliance()));
+							liTmp.addAll(getEnemyControlAtLocation(new Location(x, 6), king.getAlliance()));
 							if (liTmp == null || liTmp.isEmpty()) {
 								list.add(new Location(x, 6));
 							}

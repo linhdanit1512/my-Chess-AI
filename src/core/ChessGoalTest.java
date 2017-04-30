@@ -20,7 +20,7 @@ public class ChessGoalTest {
 			for (int i = 0; i < 8; i++) {
 				for (int j = 0; j < 8; j++) {
 					Piece piece = board.pieceBoard[i][j];
-					if (piece != null && piece.getColor() == board.getPlayer()) {
+					if (piece != null && piece.getAlliance() == board.getPlayer()) {
 						List<Location> listTMP = piece.getRule().getRealLocationCanMove();
 						if (listTMP != null && !listTMP.isEmpty()) {
 							return false;
@@ -45,7 +45,7 @@ public class ChessGoalTest {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				if (board.pieceBoard[i][j] != null) {
-					if (board.pieceBoard[i][j].getColor() == board.getPlayer()) {
+					if (board.pieceBoard[i][j].getAlliance() == board.getPlayer()) {
 						List<Location> tmp = board.pieceBoard[i][j].getRule().getRealLocationCanMove();
 						if (tmp != null && !tmp.isEmpty()) {
 							return false;
@@ -68,7 +68,7 @@ public class ChessGoalTest {
 		Piece king = board.getKing().get(board.getPlayer());
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
-				if (board.pieceBoard[i][j] != null && board.pieceBoard[i][j].getColor() != king.getColor()) {
+				if (board.pieceBoard[i][j] != null && board.pieceBoard[i][j].getAlliance() != king.getAlliance()) {
 					if (board.pieceBoard[i][j].getRule().getAllLocationControl().contains(king.getLocation()))
 						return true;
 				}

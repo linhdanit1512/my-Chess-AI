@@ -55,8 +55,8 @@ public class KingRule extends Rule {
 				for (Location l : tmp) {
 					// neu o vi tri do co ko bi quan dich khong che thi co
 					// the di
-					if (getEnemyControlAtLocation(l, king.getColor()) == null
-							|| getEnemyControlAtLocation(l, king.getColor()).isEmpty()) {
+					if (getEnemyControlAtLocation(l, king.getAlliance()) == null
+							|| getEnemyControlAtLocation(l, king.getAlliance()).isEmpty()) {
 						result.add(l);
 					}
 

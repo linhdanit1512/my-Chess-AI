@@ -39,6 +39,7 @@ public class BoardController implements MouseListener, ActionListener {
 		super();
 		this.model = model;
 		this.view = view;
+		action = new ChessAction(model);
 		this.record = new RecordController(this);
 		player = model.getPlayer();
 		init();
@@ -56,7 +57,6 @@ public class BoardController implements MouseListener, ActionListener {
 	}
 
 	void init() {
-		action = new ChessAction(model);
 		view.pnBoard.addMouseListener(this);
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
@@ -184,7 +184,6 @@ public class BoardController implements MouseListener, ActionListener {
 	}
 
 	Location to, from;
-	List<Location> listTMPMove = new ArrayList<Location>();
 	Sound sound = new Sound();
 	int count = 0;
 
@@ -197,10 +196,10 @@ public class BoardController implements MouseListener, ActionListener {
 					 * chon quan co lan dau hoac chon quan co khac
 					 */
 					if (from == null || (model.getPieceAt(new Location(i, j)) != null
-							&& model.getPieceAt(new Location(i, j)).getColor() == model.getPlayer())) {
+							&& model.getPieceAt(new Location(i, j)).getAlliance() == model.getPlayer())) {
 
 						if (view.btnBoard[i][j] != null && model.pieceBoard[i][j] != null) {
-							if (model.pieceBoard[i][j].getColor() == model.getPlayer()) {
+							if (model.pieceBoard[i][j].getAlliance() == model.getPlayer()) {
 								Piece piece = model.pieceBoard[i][j];
 								click(piece);
 								return;
@@ -218,25 +217,19 @@ public class BoardController implements MouseListener, ActionListener {
 	}
 
 	public void click(Piece piece) {
-		for (Location l : listTMPMove) {
-			view.btnBoard[l.getX()][l.getY()].setBorder(null);
-			view.btnBoard[l.getX()][l.getY()].setBorderPainted(false);
-		}
-		listTMPMove.clear();
 		if (piece != null) {
-			if (piece.getColor() == model.getPlayer()) {
+			view.resetBorderIgnore(piece.getLocation());
+			if (piece.getAlliance() == model.getPlayer()) {
 				from = piece.getLocation();
 				if (to != null) {
 					view.btnBoard[to.getX()][to.getY()].setBorder(null);
 					to = null;
 				}
-				listTMPMove.add(from);
 				view.btnBoard[from.getX()][from.getY()].setBorderPainted(true);
 				view.btnBoard[from.getX()][from.getY()]
 						.setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
 				if (getAllRule().get(model.getPieceAt(from)) != null)
 					for (Location l : getAllRule().get(model.getPieceAt(from))) {
-						listTMPMove.add(l);
 						view.btnBoard[l.getX()][l.getY()].setBorderPainted(true);
 						view.btnBoard[l.getX()][l.getY()]
 								.setBorder(BorderFactory.createEtchedBorder(2, Color.BLUE, Color.GREEN));
@@ -248,13 +241,6 @@ public class BoardController implements MouseListener, ActionListener {
 
 	public void move(Location to) {
 		if (from.equals(to)) {
-
-			for (Location l : listTMPMove) {
-				view.btnBoard[l.getX()][l.getY()].setBorder(null);
-				view.btnBoard[l.getX()][l.getY()].setBorderPainted(false);
-			}
-			listTMPMove.clear();
-			from = null;
 			to = null;
 			return;
 		}
@@ -279,34 +265,27 @@ public class BoardController implements MouseListener, ActionListener {
 		if (action.push(move)) {
 			sound.playSound("sound\\Move.WAV");
 
-			for (Location l : listTMPMove) {
-				view.btnBoard[l.getX()][l.getY()].setBorder(null);
-				view.btnBoard[l.getX()][l.getY()].setBorderPainted(false);
-			}
-			view.btnBoard[to.getX()][to.getY()].setBorderPainted(true);
-			view.btnBoard[to.getX()][to.getY()].setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
+			view.resetBorderIgnore(to);
 			view.btnBoard[to.getX()][to.getY()]
 					.setIcon(new ImageIcon("image\\" + action.peek().getPieceFrom().getLinkImg()));
 
-			// view.btnBoard[from.getX()][from.getY()].setBorderPainted(false);
 			view.btnBoard[from.getX()][from.getY()].setIcon(null);
-
 			String players = player();
 
 			record.view.pnRecord.add(new Record(action.getCount(), players, move));
-
-			if (model.getPlayer() == Player.PLAYER || model.getPlayer() == Player.COMPUTER2)
+			System.out.println(model.getPlayer() + "player");
+			if (model.getPlayer() == Player.PLAYER || model.getPlayer() == Player.COMPUTER2) {
 				model.setPlayer(Player.COMPUTER);
-			else if (model.getPlayer() == Player.PLAYER2 || model.getPlayer() == Player.COMPUTER)
+			} else if (model.getPlayer() == Player.PLAYER2 || model.getPlayer() == Player.COMPUTER)
 				model.setPlayer(Player.PLAYER);
-			System.out.println("System.out.println(action.push(new Move(new Location(" + from.getX() + ","
-					+ from.getY() + "), new Location(" + to.getX() + ", " + to.getY() + "))));");
+			System.out.println("System.out.println(action.push(new Move(new Location(" + from.getX() + "," + from.getY()
+					+ "), new Location(" + to.getX() + ", " + to.getY() + "))));");
+			setPlayer();
 			model.setMeasurements(model.getPlayer(), model.pieceBoard);
-			listTMPMove.clear();
 			clearMapRule();
 			from = null;
 			view.validate();
-			model.printBoard();
+			model.printLocation();
 		} else {
 			to = null;
 			return;
@@ -334,12 +313,20 @@ public class BoardController implements MouseListener, ActionListener {
 
 	public String player() {
 		String players = "";
-		if (player == Player.COMPUTER) {
+		if (model.getPlayer() == Player.COMPUTER) {
 			players = "COMPUTER:";
-		} else if (player == Player.PLAYER) {
+		} else if (model.getPlayer() == Player.PLAYER) {
 			players = "YOU:";
 		}
 		return players;
+	}
+
+	public int getPlayer() {
+		return model.getPlayer();
+	}
+
+	public void setPlayer() {
+		this.player = model.getPlayer();
 	}
 
 }

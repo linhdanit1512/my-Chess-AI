@@ -25,6 +25,7 @@ public class RecordController implements ActionListener, KeyListener {
 		this.action = boardcontrol.action;
 		this.board = boardcontrol.model;
 		this.view = boardcontrol.view;
+		init();
 	}
 
 	void init() {
@@ -34,38 +35,34 @@ public class RecordController implements ActionListener, KeyListener {
 		view.pnRecord.btnUndo.addKeyListener(this);
 	}
 
-	synchronized void undo() {
+	void undo() {
 		Move move = action.undo();
 		if (move != null) {
 			view.undo(move);
-			Move preMove = action.peek();
 			view.pnRecord.remove();
-			view.btnBoard[preMove.getTo().getX()][preMove.getTo().getY()]
-					.setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
-			if (board.getPlayer() == Player.COMPUTER) {
-				board.setPlayer(Player.PLAYER);
-			} else if (board.getPlayer() == Player.PLAYER) {
-				board.setPlayer(Player.COMPUTER);
-			}
+			Move preMove = action.peek();
+			if (preMove != null) {
+				view.resetBorderIgnore(preMove.getTo());
+				view.btnBoard[preMove.getTo().getX()][preMove.getTo().getY()]
+						.setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
+			} else
+				view.resetBorder();
 			view.repaint();
 		}
 	}
 
-	synchronized void redo() {
+	void redo() {
 		Move move = action.redo();
 		if (move != null) {
 			String player = "";
 			if (board.getPlayer() == Player.COMPUTER) {
-				board.setPlayer(Player.PLAYER);
 				player = "COMPUTER:";
 			} else if (board.getPlayer() == Player.PLAYER) {
-				board.setPlayer(Player.COMPUTER);
 				player = "YOU:";
 			}
 			view.pnRecord.add(new Record(action.getCount(), player, move));
 			view.redo(move);
-			view.btnBoard[move.getTo().getX()][move.getTo().getY()]
-					.setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
+			view.resetBorderIgnore(move.getTo());
 			view.repaint();
 		}
 	}
@@ -99,8 +96,6 @@ public class RecordController implements ActionListener, KeyListener {
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override

@@ -98,6 +98,14 @@ public class Move {
 		return true;
 	}
 
+	public String toFullString() {
+		if (prisoner != null)
+			return from.toString() + " → " + to.toString() + " piece: " + pieceFrom.getType().toString() + " prisoner: "
+					+ prisoner.getType().toString();
+		else
+			return from.toString() + " → " + to.toString() + " piece: " + pieceFrom.getType().toString();
+	}
+
 	@Override
 	public String toString() {
 		return "" + getPieceFrom().getAcronym() + from.toWordString() + " → " + getTo().toWordString();

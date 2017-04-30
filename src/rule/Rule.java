@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
-import chess.ColorPiece;
+import chess.Alliance;
 import chess.Piece;
 import chess.PieceType;
 import core.ChessBoard;
@@ -80,7 +80,7 @@ public abstract class Rule implements Serializable, Observer {
 			Piece king = board.getKing().get(board.getPlayer());
 			// tim cac quan co dang chieu vua vi co the trong 1 luc co nhieu
 			// quan cung chieu no
-			List<Piece> listEnemy = getEnemyControlAtLocation(king.getLocation(), king.getColor());
+			List<Piece> listEnemy = getEnemyControlAtLocation(king.getLocation(), king.getAlliance());
 			if (listEnemy == null)
 				return null;
 			else if (listEnemy.isEmpty())
@@ -116,9 +116,9 @@ public abstract class Rule implements Serializable, Observer {
 					listCheckmateLocat.add(enemy.getLocation());
 
 					List<Piece> myPieces = new ArrayList<Piece>();
-					if (king.getColor() == ColorPiece.BLACK)
+					if (king.getAlliance() == Alliance.BLACK)
 						myPieces = board.listBlackAlliance;
-					else if (king.getColor() == ColorPiece.WHITE)
+					else if (king.getAlliance() == Alliance.WHITE)
 						myPieces = board.listWhiteAlliance;
 					for (Piece p : myPieces) {
 						List<Location> tmp = new ArrayList<Location>();
@@ -149,7 +149,7 @@ public abstract class Rule implements Serializable, Observer {
 			Piece piece = board.getPieceAt(location);
 			if (piece != null) {
 				// neu quan vua dang bi chieu
-				if (ChessGoalTest.checkmate(board) && piece.getColor() == board.getPlayer()) {
+				if (ChessGoalTest.checkmate(board) && piece.getAlliance() == board.getPlayer()) {
 					List<Location> tmp = getAllListLocationCanMoveWhenCheckmate().get(piece);
 					if (tmp != null && !tmp.isEmpty())
 						result.addAll(tmp);
@@ -203,10 +203,10 @@ public abstract class Rule implements Serializable, Observer {
 			if (board.getKing().containsValue(piece)) {
 				return null;
 			}
-			Location kingLocation = board.getKing().get(piece.getColor()).getLocation();
+			Location kingLocation = board.getKing().get(piece.getAlliance()).getLocation();
 			// cac quan co cua doi phuong co the chieu toi vi tri cua quan
 			// co piece
-			List<Piece> list = getEnemyControlAtLocation(piece.getLocation(), piece.getColor());
+			List<Piece> list = getEnemyControlAtLocation(piece.getLocation(), piece.getAlliance());
 			if (list != null && !list.isEmpty()) {
 				for (Piece p : list) {
 
@@ -304,7 +304,7 @@ public abstract class Rule implements Serializable, Observer {
 					// neu quan co o vi tri i,j co the di toi vi tri location
 					// thi add
 					if (piece.getRule().getAllLocationControl().contains(location)) {
-						if (piece.getColor() != color) {
+						if (piece.getAlliance() != color) {
 							result.add(piece);
 						}
 					}
@@ -378,11 +378,11 @@ public abstract class Rule implements Serializable, Observer {
 			if (board.pieceBoard[paramX][paramY] == null)
 				return 1;
 			// vi tri can toi co quan khac mau
-			else if (board.pieceBoard[paramX][paramY].getColor() != board.getPieceAt(location).getColor()) {
+			else if (board.pieceBoard[paramX][paramY].getAlliance() != board.getPieceAt(location).getAlliance()) {
 				return 2;
 			}
 			// vi tri can toi co quan cung mau
-			else if (board.pieceBoard[paramX][paramY].getColor() == board.getPieceAt(location).getColor()) {
+			else if (board.pieceBoard[paramX][paramY].getAlliance() == board.getPieceAt(location).getAlliance()) {
 				return 3;
 			} else
 				return 0;

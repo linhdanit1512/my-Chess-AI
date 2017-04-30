@@ -5,7 +5,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Stack;
 
-import chess.ColorPiece;
+import chess.Alliance;
 import chess.Piece;
 import chess.PieceType;
 import core.ChessBoard;
@@ -42,11 +42,27 @@ public class ChessAction implements Observer {
 			move.setPieceFrom(board.getPieceAt(move.getFrom()));
 		if (move.getPrisoner() == null)
 			move.setPrisoner(board.getPieceAt(move.getTo()));
-		if (move.getPieceFrom().getColor() == board.getPlayer())
+		if (move.getPieceFrom().getAlliance() == board.getPlayer())
 			if (move.getPieceFrom().getRule().getRealLocationCanMove().contains(move.getTo())) {
 				count++;
-				if (castling(move))
-					return true;
+				if (castling(move)) {
+					moves.push(move);
+					board.setPieceAtLocation(move.getTo(), move.getPieceFrom());
+					board.getPieceAt(move.getTo()).updateMove();
+					int x = move.getTo().getX();
+					int y = move.getTo().getY();
+					if (y == 2) {
+						board.setPieceAtLocation(new Location(x, 3), board.pieceBoard[x][0]);
+						board.getPieceAt(new Location(x, 3)).updateMove();
+						return true;
+					}
+
+					if (y == 6) {
+						board.setPieceAtLocation(new Location(x, 5), board.pieceBoard[x][7]);
+						board.getPieceAt(new Location(x, 5)).updateMove();
+						return true;
+					}
+				}
 				moves.push(move);
 				board.setPieceAtLocation(move.getTo(), move.getPieceFrom());
 				board.getPieceAt(move.getTo()).updateMove();
@@ -64,22 +80,7 @@ public class ChessAction implements Observer {
 					List<Location> list = castling.castling(move.getPieceFrom());
 					if (list != null && !list.isEmpty()) {
 						if (list.contains(move.getTo())) {
-							moves.push(move);
-							board.setPieceAtLocation(move.getTo(), move.getPieceFrom());
-							board.getPieceAt(move.getTo()).updateMove();
-							int x = move.getTo().getX();
-							int y = move.getTo().getY();
-							if (y == 2) {
-								board.setPieceAtLocation(new Location(x, 3), board.pieceBoard[x][0]);
-								board.getPieceAt(new Location(x, 3)).updateMove();
-								return true;
-							}
-
-							if (y == 6) {
-								board.setPieceAtLocation(new Location(x, 5), board.pieceBoard[x][7]);
-								board.getPieceAt(new Location(x, 5)).updateMove();
-								return true;
-							}
+							return true;
 						}
 					}
 				}
@@ -88,7 +89,9 @@ public class ChessAction implements Observer {
 	}
 
 	public Move peek() {
-		return moves.peek();
+		if (moves.size() > 0)
+			return moves.peek();
+		return null;
 	}
 
 	Stack<Move> undo = new Stack<Move>();
@@ -96,15 +99,21 @@ public class ChessAction implements Observer {
 	public Move undo() {
 		if (undo.size() <= 6) {
 			Move move = moves.peek();
+			System.out.println("undo: " + move.toFullString() + "     " + move.getPrisoner());
+			if (move.getPieceFrom().getAlliance() != board.getPlayer()) {
+				board.setPlayer(move.getPieceFrom().getAlliance());
+			}
 			undo.push(move);
 			Piece pieceFrom = move.getPieceFrom();
 			Piece prisoner = move.getPrisoner();
-			Location preLoca = move.getFrom();
-			Location lo = move.getTo();
-			board.setPieceAtLocation(preLoca, pieceFrom);
-			board.getPieceAt(preLoca).updateUndoMove();
-			board.setPieceAtLocation(lo, prisoner);
+			Location from = move.getFrom();
+			Location to = move.getTo();
+			pieceFrom.updateUndoMove();
+			board.setPieceAtLocation(from, pieceFrom);
+			if (prisoner != null)
+				board.addPiece(to, prisoner);
 			count--;
+			board.printLocation();
 			return moves.pop();
 		}
 		return null;
@@ -116,6 +125,7 @@ public class ChessAction implements Observer {
 		else {
 			Move move = undo.peek();
 			push(move);
+			board.printLocation();
 			return undo.pop();
 		}
 	}
@@ -129,7 +139,7 @@ public class ChessAction implements Observer {
 			return null;
 		StringBuffer sb = new StringBuffer();
 		sb.append(move.getPieceFrom().getAcronym());
-		List<Piece> listTMP = move.getPieceFrom().getRule().getEnemyControlAtLocation(move.getTo(), ColorPiece.BOTH);
+		List<Piece> listTMP = move.getPieceFrom().getRule().getEnemyControlAtLocation(move.getTo(), Alliance.BOTH);
 		if (listTMP.size() == 0) {
 		} else if (listTMP.size() == 1) {
 		} else if (listTMP.size() > 1) {

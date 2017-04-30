@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 
-import chess.ColorPiece;
+import chess.Alliance;
 import chess.Piece;
 import chess.PieceType;
 import core.Location;
@@ -38,9 +38,9 @@ public class PawnRule extends Rule {
 			 * neu la quan den thi di theo chieu tu tren xuong (x tang dan), neu
 			 * la quan trang thi di theo chieu tu duoi len (x giam dan)
 			 */
-			if (pieces[x][y].getColor() == ColorPiece.BLACK)
+			if (pieces[x][y].getAlliance() == Alliance.BLACK)
 				param = 1;
-			else if (pieces[x][y].getColor() == ColorPiece.WHITE)
+			else if (pieces[x][y].getAlliance() == Alliance.WHITE)
 				param = -1;
 			// co the an quan ben phai
 			if (checkValidTile( x + param, y + 1) == 2)
@@ -80,9 +80,9 @@ public class PawnRule extends Rule {
 		int x = location.getX();
 		int y = location.getY();
 		if (board.pieceBoard[x][y].getType() == PieceType.PAWN) {
-			if (board.pieceBoard[x][y].getColor() == ColorPiece.BLACK && x == 7)
+			if (board.pieceBoard[x][y].getAlliance() == Alliance.BLACK && x == 7)
 				return true;
-			else if (board.pieceBoard[x][y].getColor() == ColorPiece.WHITE && x == 0)
+			else if (board.pieceBoard[x][y].getAlliance() == Alliance.WHITE && x == 0)
 				return true;
 		}
 		return false;
@@ -100,9 +100,9 @@ public class PawnRule extends Rule {
 			 * neu la quan den thi di theo chieu tu tren xuong (x tang dan), neu
 			 * la quan trang thi di theo chieu tu duoi len (x giam dan)
 			 */
-			if (pieces[x][y].getColor() == ColorPiece.BLACK)
+			if (pieces[x][y].getAlliance() == Alliance.BLACK)
 				param = 1;
-			else if (pieces[x][y].getColor() == ColorPiece.WHITE)
+			else if (pieces[x][y].getAlliance() == Alliance.WHITE)
 				param = -1;
 			// co the an quan ben phai
 			if (checkValidTile( x + param, y + 1) == 2 || checkValidTile( x + param, y + 1) == 3)

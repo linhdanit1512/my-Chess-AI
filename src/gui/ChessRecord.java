@@ -11,7 +11,7 @@ import javax.swing.JScrollPane;
 
 import core.Record;
 
-public class ChessRecord extends JPanel{
+public class ChessRecord extends JPanel {
 	private static final long serialVersionUID = -942014659208561589L;
 	private JPanel pnRecord, pnRecordContent;
 	private JList<Record> jlist;
@@ -20,7 +20,7 @@ public class ChessRecord extends JPanel{
 	DecoButton deco = new DecoButton();
 
 	public ChessRecord() {
-		setSize(new Dimension(250, 500));
+		setSize(new Dimension(300, 500));
 		createRecordPane();
 	}
 
@@ -28,8 +28,8 @@ public class ChessRecord extends JPanel{
 
 		pnRecord = new JPanel();
 		pnRecord.setLayout(new BorderLayout());
-		pnRecord.setMinimumSize(new Dimension(250, getHeight()));
-		pnRecord.setPreferredSize(new Dimension(250, getHeight()));
+		pnRecord.setMinimumSize(new Dimension(300, getHeight()));
+		pnRecord.setPreferredSize(new Dimension(300, getHeight()));
 
 		pnRecordContent = new JPanel();
 		model = new DefaultListModel<Record>();
@@ -42,7 +42,9 @@ public class ChessRecord extends JPanel{
 
 		JPanel pnRedoUndo = new JPanel();
 		btnRedo = new JButton(deco.resizeImage(40, 60, "image\\redo.png"));
+		btnRedo.setToolTipText("Redo");
 		btnUndo = new JButton(deco.resizeImage(40, 60, "image\\undo.png"));
+		btnUndo.setToolTipText("Undo");
 		pnRedoUndo.add(btnUndo);
 		pnRedoUndo.add(btnRedo);
 

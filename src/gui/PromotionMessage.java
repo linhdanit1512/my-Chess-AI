@@ -10,7 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import chess.ColorPiece;
+import chess.Alliance;
 import chess.Piece;
 import chess.PieceType;
 import core.ChessBoard;
@@ -76,41 +76,41 @@ public class PromotionMessage extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 
 		if (e.getSource() == btnQueen) {
-			if (pawn.getColor() == ColorPiece.WHITE) {
+			if (pawn.getAlliance() == Alliance.WHITE) {
 				piece = new Piece(pawn.getLocation(), PieceType.QUEEN, 'Q', new QueenRule(ob, pawn.getLocation()),
-						ColorPiece.WHITE, 90, "whitequeen.png");
-			} else if (pawn.getColor() == ColorPiece.BLACK) {
+						Alliance.WHITE, 90, "whitequeen.png");
+			} else if (pawn.getAlliance() == Alliance.BLACK) {
 				piece = new Piece(pawn.getLocation(), PieceType.QUEEN, 'Q', new QueenRule(ob, pawn.getLocation()),
-						ColorPiece.BLACK, 90, "blackqueen.png");
+						Alliance.BLACK, 90, "blackqueen.png");
 			}
 		}
 		if (e.getSource() == btnRook) {
-			if (pawn.getColor() == ColorPiece.WHITE) {
+			if (pawn.getAlliance() == Alliance.WHITE) {
 				piece = new Piece(pawn.getLocation(), PieceType.ROOK, 'R', new RookRule(ob, pawn.getLocation()),
-						ColorPiece.WHITE, 50, "whiterook.png");
-			} else if (pawn.getColor() == ColorPiece.BLACK) {
+						Alliance.WHITE, 50, "whiterook.png");
+			} else if (pawn.getAlliance() == Alliance.BLACK) {
 				piece = new Piece(pawn.getLocation(), PieceType.ROOK, 'R', new RookRule(ob, pawn.getLocation()),
-						ColorPiece.BLACK, 50, "blackrook.png");
+						Alliance.BLACK, 50, "blackrook.png");
 			}
 		}
 
 		if (e.getSource() == btnBishop) {
-			if (pawn.getColor() == ColorPiece.WHITE) {
+			if (pawn.getAlliance() == Alliance.WHITE) {
 				piece = new Piece(pawn.getLocation(), PieceType.BISHOP, 'B', new BishopRule(ob, pawn.getLocation()),
-						ColorPiece.WHITE, 32, "whitebishop.png");
-			} else if (pawn.getColor() == ColorPiece.BLACK) {
+						Alliance.WHITE, 32, "whitebishop.png");
+			} else if (pawn.getAlliance() == Alliance.BLACK) {
 				piece = new Piece(pawn.getLocation(), PieceType.BISHOP, 'B', new BishopRule(ob, pawn.getLocation()),
-						ColorPiece.BLACK, 32, "blackbishop.png");
+						Alliance.BLACK, 32, "blackbishop.png");
 			}
 		}
 
 		if (e.getSource() == btnKnight) {
-			if (pawn.getColor() == ColorPiece.WHITE) {
+			if (pawn.getAlliance() == Alliance.WHITE) {
 				piece = new Piece(pawn.getLocation(), PieceType.KNIGHT, 'N', new KnightRule(ob, pawn.getLocation()),
-						ColorPiece.WHITE, 30, "whitequeen.png");
-			} else if (pawn.getColor() == ColorPiece.BLACK) {
+						Alliance.WHITE, 30, "whitequeen.png");
+			} else if (pawn.getAlliance() == Alliance.BLACK) {
 				piece = new Piece(pawn.getLocation(), PieceType.KNIGHT, 'N', new KnightRule(ob, pawn.getLocation()),
-						ColorPiece.BLACK, 30, "blackqueen.png");
+						Alliance.BLACK, 30, "blackqueen.png");
 			}
 		}
 	}

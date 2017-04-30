@@ -8,7 +8,7 @@ public class Piece {
 	PieceType type;
 	char acronym;
 	Rule rule;
-	int color;
+	int alliance;
 	int score;
 	String linkImg;
 	int move;
@@ -16,13 +16,14 @@ public class Piece {
 	public Piece() {
 		super();
 	}
-	public Piece(Piece piece){
+
+	public Piece(Piece piece) {
 		super();
 		this.location = piece.getLocation();
 		this.type = piece.getType();
 		this.acronym = piece.getAcronym();
 		this.rule = piece.getRule();
-		this.color = piece.getColor();
+		this.alliance = piece.getAlliance();
 		this.score = piece.getScore();
 		this.linkImg = piece.getLinkImg();
 		this.move = piece.getMove();
@@ -35,7 +36,7 @@ public class Piece {
 		this.type = type;
 		this.acronym = acronym;
 		this.rule = rule;
-		this.color = color;
+		this.alliance = color;
 		this.score = score;
 		this.linkImg = linkImg;
 		this.move = 0;
@@ -46,7 +47,7 @@ public class Piece {
 		this.type = name;
 		this.acronym = acronym;
 		this.rule = rule;
-		this.color = color;
+		this.alliance = color;
 		this.score = score;
 		this.linkImg = linkImg;
 		this.move = 0;
@@ -110,13 +111,13 @@ public class Piece {
 	public int getMove() {
 		return move;
 	}
-	
-	public void updateMove(){
-		this.move++;
+
+	public void updateMove() {
+		this.move += 1;
 	}
-	
-	public void updateUndoMove(){
-		this.move--;
+
+	public void updateUndoMove() {
+		this.move -= 1;
 	}
 
 	public void setMove(int move) {
@@ -126,15 +127,19 @@ public class Piece {
 	@Override
 	public String toString() {
 		return getType() + ":\t" + getAcronym() + " " + getLocation() + "\tRule: " + getRule().getClass().getName()
-				+ "\tScore: " + getScore() + ", image: " + getLinkImg() + ", color: " + color;
+				+ "\tScore: " + getScore() + ", image: " + getLinkImg() + ", color: " + alliance;
 	}
 
 	public int getColor() {
-		return color;
+		return getAlliance();
+	}
+
+	public int getAlliance() {
+		return alliance;
 	}
 
 	public void setColor(int color) {
-		this.color = color;
+		this.alliance = color;
 	}
 
 	@Override
@@ -142,7 +147,7 @@ public class Piece {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + acronym;
-		result = prime * result + color;
+		result = prime * result + alliance;
 		result = prime * result + ((linkImg == null) ? 0 : linkImg.hashCode());
 		result = prime * result + ((location == null) ? 0 : location.hashCode());
 		result = prime * result + move;
@@ -163,7 +168,7 @@ public class Piece {
 		Piece other = (Piece) obj;
 		if (acronym != other.acronym)
 			return false;
-		if (color != other.color)
+		if (alliance != other.alliance)
 			return false;
 		if (linkImg == null) {
 			if (other.linkImg != null)
