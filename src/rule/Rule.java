@@ -91,7 +91,7 @@ public abstract class Rule implements Serializable, Observer {
 			 * di chuyen vi cac quan khac ko the cung luc chan duoc tan cong cua
 			 * 2 quan.
 			 * 
-			 * truong hop nay xay ra khi quan vua di chan quan dang sau no chieu
+			 * truong hop nay xay ra khi quan vừa di chan quan dang sau no chieu
 			 * vua, nhung chinh khi no di chuyen thi vao o khac co the chieu
 			 * vua. va chi co the co toi da la 2 quan chieu vua 1 luc (khong
 			 * tinh truong hop 2 nguoi choi voi nhau ma ca 2 deu ko phat hien ra
@@ -103,7 +103,7 @@ public abstract class Rule implements Serializable, Observer {
 				listResult.put(king, list);
 				return listResult;
 
-			} else {
+			} else if (count==1){
 				/**
 				 * khi chi co 1 quan co chieu toi vua
 				 */

@@ -46,5 +46,9 @@ public class tesst {
 
 		System.out.println(action.push(new Move(new Location(0, 2), new Location(1, 3))));
 		board.printBoard();
+		for (Piece p : board.listBlackAlliance)
+			System.out.println(p.getLinkImg()+ p.getLocation().toString());
+		for (Piece p : board.listWhiteAlliance)
+			System.out.println(p.getLinkImg()+ p.getLocation().toString());
 	}
 }

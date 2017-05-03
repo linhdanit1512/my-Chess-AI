@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -39,7 +40,11 @@ public class RecordRendered extends JPanel implements ListCellRenderer<Record> {
 
 		lblMove = new JLabel();
 		lblMove.setHorizontalTextPosition(SwingConstants.LEFT);
-
+		
+		lblOrder.setFont(new Font("Cambria", Font.PLAIN, 13));
+		lblPlayer.setFont(new Font("Cambria", Font.PLAIN, 13));
+		lblMove.setFont(new Font("Cambria", Font.PLAIN, 13));
+		
 		lblOrder.setOpaque(true);
 		lblPlayer.setOpaque(true);
 		lblMove.setOpaque(true);

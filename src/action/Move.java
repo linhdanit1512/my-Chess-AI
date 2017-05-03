@@ -100,10 +100,10 @@ public class Move {
 
 	public String toFullString() {
 		if (prisoner != null)
-			return from.toString() + " → " + to.toString() + " piece: " + pieceFrom.getType().toString() + " prisoner: "
+			return from.toWordString() + " → " + to.toWordString() +" "+ pieceFrom.getType().toString() + " : "
 					+ prisoner.getType().toString();
 		else
-			return from.toString() + " → " + to.toString() + " piece: " + pieceFrom.getType().toString();
+			return from.toWordString() + " → " + to.toWordString() +" "+ pieceFrom.getType().toString();
 	}
 
 	@Override

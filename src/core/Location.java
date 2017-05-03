@@ -132,8 +132,8 @@ public class Location {
 	}
 
 	public String toWordString() {
-		
-		return ""+getYString()+getXString();
+
+		return "" + getYString() + getXString();
 	}
 
 	@Override

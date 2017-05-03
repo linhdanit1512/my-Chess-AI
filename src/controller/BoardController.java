@@ -13,7 +13,9 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
+import javax.swing.border.EtchedBorder;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import action.ChessAction;
@@ -21,6 +23,7 @@ import action.Move;
 import chess.Piece;
 import chess.PieceType;
 import core.ChessBoard;
+import core.ChessGoalTest;
 import core.Location;
 import core.Player;
 import core.Record;
@@ -52,7 +55,7 @@ public class BoardController implements MouseListener, ActionListener {
 		} catch (Exception e) {
 		}
 		ChessBoard model = new ChessBoard();
-		Board view = new Board();
+		Board view = new Board(700);
 		new BoardController(model, view);
 	}
 
@@ -260,20 +263,28 @@ public class BoardController implements MouseListener, ActionListener {
 				view.btnBoard[x][7].setIcon(null);
 			}
 			view.btnBoard[from.getX()][from.getY()].setIcon(null);
+			sound.playSound("sound\\Capture.WAV");
 		}
 		// them vao stack nuoc di nay
 		if (action.push(move)) {
-			sound.playSound("sound\\Move.WAV");
+			if (move.getPrisoner() == null)
+				sound.playSound("sound\\Move.WAV");
+			else
+				sound.playSound("sound\\eat.wav");
 
+			// reset lại border cho các ô của bàn cờ
 			view.resetBorderIgnore(to);
 			view.btnBoard[to.getX()][to.getY()]
 					.setIcon(new ImageIcon("image\\" + action.peek().getPieceFrom().getLinkImg()));
 
+			// loại icon của ô from vừa đi
 			view.btnBoard[from.getX()][from.getY()].setIcon(null);
 			String players = player();
 
+			// thêm 1 bước đi vào trong kì phổ
 			record.view.pnRecord.add(new Record(action.getCount(), players, move));
-			System.out.println(model.getPlayer() + "player");
+
+			// set lại lượt chơi cho người chơi và máy
 			if (model.getPlayer() == Player.PLAYER || model.getPlayer() == Player.COMPUTER2) {
 				model.setPlayer(Player.COMPUTER);
 			} else if (model.getPlayer() == Player.PLAYER2 || model.getPlayer() == Player.COMPUTER)
@@ -281,11 +292,24 @@ public class BoardController implements MouseListener, ActionListener {
 			System.out.println("System.out.println(action.push(new Move(new Location(" + from.getX() + "," + from.getY()
 					+ "), new Location(" + to.getX() + ", " + to.getY() + "))));");
 			setPlayer();
+
+			// thông báo cập nhật tới các Observer
 			model.setMeasurements(model.getPlayer(), model.pieceBoard);
+
+			// xóa thông tin map.
 			clearMapRule();
 			from = null;
+			check();
 			view.validate();
-			model.printLocation();
+//			for(Map.Entry<Piece, List<Location>> map : getAllRule().entrySet()){
+//				System.out.print(map.getKey().getLinkImg());
+//				for(Location l : map.getValue()){
+//					System.out.print(l.toString()+"\t");
+//				}
+//				System.out.println();
+//			}
+			model.printBoard();
+
 		} else {
 			to = null;
 			return;
@@ -309,6 +333,52 @@ public class BoardController implements MouseListener, ActionListener {
 			}
 		}
 		return false;
+	}
+
+	public int check() {
+		// kiểm tra vua có bị chiếu hay ko
+		if (ChessGoalTest.checkmate(model)) {
+			Piece king = model.getKing().get(getPlayer());
+			// lấy tọa độ của vua
+			Location l = king.getLocation();
+			List<Piece> tmp = king.getRule().getEnemyControlAtLocation(l, king.getAlliance());
+			tmp.add(king);
+
+			for (Piece p : tmp) {
+				view.btnBoard[p.getLocation().getX()][p.getLocation().getY()]
+						.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED, Color.RED, Color.ORANGE));
+			}
+
+			// kiem tra chieu bi
+			if (ChessGoalTest.checkWin(model)) {
+				String message = "";
+				if (model.getPlayer() == Player.PLAYER) {
+					sound.playSound("sound\\lost.wav");
+					message = "You lost";
+				} else {
+					sound.playSound("sound\\win.wav");
+					message = "You  win";
+				}
+				for (int i = 0; i < 8; i++) {
+					for (int j = 0; j < 8; j++) {
+						view.btnBoard[i][j].removeActionListener(this);
+					}
+				}
+				view.pnRecord.btnRedo.removeActionListener(record);
+				view.pnRecord.btnUndo.removeActionListener(record);
+				JOptionPane.showMessageDialog(null, message, "End game message", JOptionPane.INFORMATION_MESSAGE, null);
+				return 1;
+			}
+			 sound.playSound("sound\\check.wav");
+			return 3;
+
+		} else if (ChessGoalTest.checkDraw(model, action)) {
+			sound.playSound("sound\\draw.wav");
+			JOptionPane.showMessageDialog(null, "You draw with computer", "End game message",
+					JOptionPane.INFORMATION_MESSAGE, null);
+			return 2;
+		}
+		return 0;
 	}
 
 	public String player() {

@@ -22,9 +22,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.border.EmptyBorder;
 
 import action.Move;
 import chess.Piece;
+import chess.PieceType;
 import controller.BoardController;
 import core.ChessBoard;
 import core.Location;
@@ -34,7 +36,7 @@ public class Board extends JFrame implements ActionListener {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 3032926387546045087L;
+	private static final long serialVersionUID = 3032726387546045087L;
 	public JPanel pnPlayer1, pnPlayer2, pnBoard;
 	public ChessRecord pnRecord;
 	public JButton btnBoard[][];
@@ -44,11 +46,11 @@ public class Board extends JFrame implements ActionListener {
 
 	public JLabel lblPieceDragged;
 
-	public Board() {
+	public Board(int height) {
 		setLayout(new BorderLayout());
 		setBackground(Color.WHITE);
 		createMenuBar();
-		createBoard();
+		createBoard(height);
 		createPlayerPane();
 		createRecordPane();
 		createLayeredPane();
@@ -115,7 +117,7 @@ public class Board extends JFrame implements ActionListener {
 		setJMenuBar(menubar);
 	}
 
-	public void createBoard() {
+	public void createBoard(int height) {
 		pnBoard = new JPanel() {
 			/**
 			 * 
@@ -124,11 +126,12 @@ public class Board extends JFrame implements ActionListener {
 
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
-				g.drawImage(create.resizeImage(520, 520, "image\\chessboard2.png").getImage(), 0, 0, null);
+				g.drawImage(create.resizeImage(height, height, "image\\chessboard2.png").getImage(), 0, 0, null);
 				repaint();
 			}
 		};
-		Dimension dboard = new Dimension(520, 520);
+		Dimension dboard = new Dimension(height, height);
+		pnBoard.setBorder(new EmptyBorder(height / 34, height / 34, height / 34, height / 34));
 		pnBoard.setLayout(new GridLayout(8, 8));
 		pnBoard.setPreferredSize(dboard);
 		pnBoard.setMaximumSize(dboard);
@@ -136,11 +139,10 @@ public class Board extends JFrame implements ActionListener {
 		pnBoard.setSize(dboard);
 
 		btnBoard = new JButton[8][8];
-		Dimension d = new Dimension(520 / 8, 520 / 8);
+		Dimension d = new Dimension(height / 8, height / 8);
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				btnBoard[i][j] = create.paintButton();
-				btnBoard[i][j].setFocusPainted(true);
 				btnBoard[i][j].setPreferredSize(d);
 				btnBoard[i][j].setMaximumSize(d);
 				pnBoard.add(btnBoard[i][j]);
@@ -236,14 +238,24 @@ public class Board extends JFrame implements ActionListener {
 			btnBoard[to.getX()][to.getY()].setIcon(new ImageIcon("image\\" + prisoner.getLinkImg()));
 		else
 			btnBoard[to.getX()][to.getY()].setIcon(null);
+
+		if (pieceFrom.getType() == PieceType.KING) {
+			if (from.getX() - to.getX() == 0 && Math.abs(from.getY() - to.getY()) == 2) {
+				int x = move.getTo().getX();
+				int y = move.getTo().getY();
+				if (y == 2) {
+					btnBoard[x][0].setIcon(btnBoard[x][3].getIcon());
+					btnBoard[x][3].setIcon(null);
+				} else if (y == 6) {
+					btnBoard[x][7].setIcon(btnBoard[x][5].getIcon());
+					btnBoard[x][5].setIcon(null);
+				}
+			}
+		}
 	}
 
 	public void setIcon(String icon) {
 		lblPieceDragged.setIcon(new ImageIcon(icon));
-	}
-
-	public static void main(String[] args) {
-		new Board();
 	}
 
 	@Override
@@ -254,7 +266,7 @@ public class Board extends JFrame implements ActionListener {
 			int choice = JOptionPane.showOptionDialog(null, "Are you really want to play?", "New Game",
 					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, option, option[0]);
 			if (choice == JOptionPane.YES_OPTION) {
-				new BoardController(new ChessBoard(), new Board());
+				new BoardController(new ChessBoard(), new Board(570));
 				return;
 			}
 		}

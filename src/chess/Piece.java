@@ -30,24 +30,24 @@ public class Piece {
 		this.rule.setLocation(location);
 	}
 
-	public Piece(Location location, PieceType type, char acronym, Rule rule, int color, int score, String linkImg) {
+	public Piece(Location location, PieceType type, char acronym, Rule rule, int alliance, int score, String linkImg) {
 		super();
 		this.location = location;
 		this.type = type;
 		this.acronym = acronym;
 		this.rule = rule;
-		this.alliance = color;
+		this.alliance = alliance;
 		this.score = score;
 		this.linkImg = linkImg;
 		this.move = 0;
 	}
 
-	public Piece(PieceType name, char acronym, Rule rule, int color, int score, String linkImg) {
+	public Piece(PieceType name, char acronym, Rule rule, int alliance, int score, String linkImg) {
 		super();
 		this.type = name;
 		this.acronym = acronym;
 		this.rule = rule;
-		this.alliance = color;
+		this.alliance = alliance;
 		this.score = score;
 		this.linkImg = linkImg;
 		this.move = 0;
@@ -127,19 +127,15 @@ public class Piece {
 	@Override
 	public String toString() {
 		return getType() + ":\t" + getAcronym() + " " + getLocation() + "\tRule: " + getRule().getClass().getName()
-				+ "\tScore: " + getScore() + ", image: " + getLinkImg() + ", color: " + alliance;
-	}
-
-	public int getColor() {
-		return getAlliance();
+				+ "\tScore: " + getScore() + ", image: " + getLinkImg() + ", alliance: " + alliance;
 	}
 
 	public int getAlliance() {
 		return alliance;
 	}
 
-	public void setColor(int color) {
-		this.alliance = color;
+	public void setAlliance(int alliance) {
+		this.alliance = alliance;
 	}
 
 	@Override

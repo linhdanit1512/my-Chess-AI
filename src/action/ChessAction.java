@@ -109,6 +109,19 @@ public class ChessAction implements Observer {
 			Location from = move.getFrom();
 			Location to = move.getTo();
 			pieceFrom.updateUndoMove();
+			if (pieceFrom.getType() == PieceType.KING) {
+				if (from.getX() - to.getX() == 0 && Math.abs(from.getY() - to.getY()) == 2) {
+					int x = move.getTo().getX();
+					int y = move.getTo().getY();
+					if (y == 2) {
+						board.getPieceAt(new Location(x, 3)).updateUndoMove();
+						board.setPieceAtLocation(new Location(x, 0), board.pieceBoard[x][3]);
+					} else if (y == 6) {
+						board.getPieceAt(new Location(x, 5)).updateUndoMove();
+						board.setPieceAtLocation(new Location(x, 7), board.pieceBoard[x][5]);
+					}
+				}
+			}
 			board.setPieceAtLocation(from, pieceFrom);
 			if (prisoner != null)
 				board.addPiece(to, prisoner);
