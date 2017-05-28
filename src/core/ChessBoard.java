@@ -1,12 +1,11 @@
 package core;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 
+import action.Move;
 import chess.Alliance;
 import chess.Piece;
 import chess.PieceType;
@@ -24,11 +23,9 @@ public class ChessBoard extends Observable implements Serializable {
 	 */
 	private static final long serialVersionUID = 6210724185703262293L;
 	public Piece[][] pieceBoard = new Piece[8][8];
-	// Map<Location, Piece> mapPiece = new HashMap<>();
 	public Map<Integer, Piece> mapKing = new HashMap<Integer, Piece>();
-	public List<Piece> listWhiteAlliance = new ArrayList<>();
-	public List<Piece> listBlackAlliance = new ArrayList<>();
 	private int player;
+	private Move premove;
 
 	public ChessBoard(Piece[][] pieceBoard, int player) {
 		super();
@@ -36,32 +33,16 @@ public class ChessBoard extends Observable implements Serializable {
 		this.setPlayer(player);
 	}
 
+	public ChessBoard(ChessBoard copyBoard) {
+		this(copyBoard.pieceBoard, copyBoard.player);
+		this.mapKing = copyBoard.getKing();
+	}
+
 	public ChessBoard() {
 		init();
 	}
 
-	public static void main(String[] args) {
-		ChessBoard ch = new ChessBoard();
-
-		// List<Piece> list = ch.getPiecesControlLocation(new
-		// Location(1,4)).get("all");
-		// for(Piece p: list){
-		// System.out.println(p.toString());
-		// }
-		ch.printBoard();
-
-		// System.out.println(ch.pieceBoard[0][0].equals(ch.pieceBoard[7][7]));
-		// System.out.println("================");
-		// Rule rule = ch.pieceBoard[0][1].getRule();
-		// rule.printListLocation(new Location(0, 1));
-		// ch.removePiece(new Location(0, 1));
-		// ch.addPiece(new Location(2, 0), ch.BLACKKNIGHT);
-		// rule.printListLocation(new Location(2, 0));
-		// System.out.println();
-		// rule.printListLocation(new Location(0, 1));
-	}
-
-	public void init() {
+	private void init() {
 		/**
 		 * BLACK ALLIANCE
 		 */
@@ -85,9 +66,9 @@ public class ChessBoard extends Observable implements Serializable {
 				Alliance.BLACK, 50, "blackrook.png"));
 
 		for (int i = 0; i < pieceBoard[0].length; i++) {
-			addPiece(new Location(1, i), new Piece(PieceType.PAWN, 'C', new PawnRule(this, new Location(1, i)),
+			addPiece(new Location(1, i), new Piece(PieceType.PAWN, ' ', new PawnRule(this, new Location(1, i)),
 					Alliance.BLACK, 10, "blackpawn.png"));
-			addPiece(new Location(6, i), new Piece(PieceType.PAWN, 'C', new PawnRule(this, new Location(6, i)),
+			addPiece(new Location(6, i), new Piece(PieceType.PAWN, ' ', new PawnRule(this, new Location(6, i)),
 					Alliance.WHITE, 10, "whitepawn.png"));
 		}
 		/**
@@ -128,12 +109,7 @@ public class ChessBoard extends Observable implements Serializable {
 		pieceBoard[x][y] = piece;
 		pieceBoard[x][y].setLocation(location);
 		pieceBoard[x][y].getRule().setLocation(location);
-		if (pieceBoard[x][y].getAlliance() == Alliance.WHITE)
-			listWhiteAlliance.add(piece);
-		else if (pieceBoard[x][y].getAlliance() == Alliance.BLACK)
-			listBlackAlliance.add(piece);
 		return true;
-		// this.mapPiece.put(location, piece);
 	}
 
 	public void setPieceAtLocation(Location location, Piece piece) {
@@ -141,43 +117,15 @@ public class ChessBoard extends Observable implements Serializable {
 			return;
 		if (piece == null)
 			return;
-		if (location.equals(piece.getLocation()))
-			return;
+		
 		int x = location.getX();
 		int y = location.getY();
-		if (pieceBoard[x][y] != null)
-			// xoa quan co o vi tri se toi
-			removePiece(location);
 		Location tmp = piece.getLocation();
-		pieceBoard[x][y] = piece;
-		int count = 0;
-		if (pieceBoard[x][y].getAlliance() == Alliance.WHITE) {
-			for (Piece a : listWhiteAlliance) {
-				if (a.equals(piece) && a.getLocation() == piece.getLocation()) {
-					a.setLocation(location);
-					count++;
-				}
-			}
-			if (count == 0) {
-				listWhiteAlliance.add(piece);
-			}
-		}
-
-		else if (pieceBoard[x][y].getAlliance() == Alliance.BLACK) {
-			for (Piece a : listBlackAlliance) {
-				if (a.equals(piece) && a.getLocation() == piece.getLocation()) {
-					a.setLocation(location);
-					count++;
-				}
-			}
-			if (count == 0) {
-				listBlackAlliance.add(piece);
-			}
-		}
-
-		this.pieceBoard[x][y].setLocation(location);
+		piece.setLocation(location);
+		this.pieceBoard[x][y] = piece;
 		this.pieceBoard[x][y].getRule().setLocation(location);
-		pieceBoard[tmp.getX()][tmp.getY()] = null;
+		if (!location.equals(piece.getLocation()))
+			pieceBoard[tmp.getX()][tmp.getY()] = null;
 	}
 
 	public void removePiece(Location location) {
@@ -185,12 +133,6 @@ public class ChessBoard extends Observable implements Serializable {
 			return;
 		int x = location.getX();
 		int y = location.getY();
-		if (pieceBoard[x][y] != null) {
-			if (pieceBoard[x][y].getAlliance() == Alliance.BLACK)
-				listBlackAlliance.remove(getPieceAt(location));
-			else if (pieceBoard[x][y].getAlliance() == Alliance.WHITE)
-				listWhiteAlliance.remove(getPieceAt(location));
-		}
 		this.pieceBoard[x][y] = null;
 	}
 
@@ -204,9 +146,9 @@ public class ChessBoard extends Observable implements Serializable {
 	 * 
 	 * @return quan vua cua 2 ben
 	 * @param key:
-	 *            ColorPiece.WHITE cho vua trang
+	 *            Alliance.WHITE cho vua trang
 	 * @param key:
-	 *            ColorPiece.BLACK cho vua den
+	 *            Alliance.BLACK cho vua den
 	 */
 	public Map<Integer, Piece> getKing() {
 		if (mapKing == null || mapKing.size() != 2) {
@@ -265,11 +207,151 @@ public class ChessBoard extends Observable implements Serializable {
 		notifyObservers();
 	}
 
-	public void setMeasurements(int player, Piece[][] pieces) {
+	public void setMeasurements(int player, Piece[][] pieces, Move premove) {
 		this.player = player;
 		this.pieceBoard = pieces;
+		setPremove(premove);
 		measurementsChanged();
+	}
 
+	private void undoNormal(Move move) {
+		setPieceAtLocation(move.getFrom(), move.getPieceFrom());
+		if (move.getPrisoner() != null) {
+			setPieceAtLocation(move.getTo(), move.getPrisoner());
+		} else {
+			removePiece(move.getTo());
+		}
+	}
+
+	private void undoPromotion(Move move) {
+		removePiece(move.getTo());
+		addPiece(move.getFrom(), move.getPieceFrom());
+	}
+
+	private void undoCastling(Move move) {
+		setPieceAtLocation(move.getFrom(), move.getPieceFrom());
+		removePiece(move.getTo());
+		int x = move.getFrom().getX();
+		if (move.isCastlingQueen()) {
+			setPieceAtLocation(new Location(x, 0), pieceBoard[x][3]);
+			removePiece(new Location(x, 3));
+			pieceBoard[x][0].updateUndoMove();
+		}
+		if (move.isCastlingKing()) {
+			setPieceAtLocation(new Location(x, 7), pieceBoard[x][5]);
+			removePiece(new Location(x, 5));
+			pieceBoard[x][7].updateUndoMove();
+		}
+	}
+
+	private void undoPassant(Move move, Move premove) {
+		setPieceAtLocation(premove.getTo(), move.getPrisoner());
+		setPieceAtLocation(move.getFrom(), move.getPieceFrom());
+		removePiece(move.getTo());
+	}
+
+	private void normal(Move move) {
+		setPieceAtLocation(move.getTo(), move.getPieceFrom());
+		getPieceAt(move.getTo()).updateMove();
+		removePiece(move.getFrom());
+	}
+
+	private void promotion(Move move) {
+		System.out.println("promotion board " + move.toStrings());
+		setPieceAtLocation(move.getTo(), move.getPiecePromotion());
+		removePiece(move.getFrom());
+	}
+
+	private void castling(Move move) {
+		move.getPieceFrom().getRule().setRule(null);
+		setPieceAtLocation(move.getTo(), move.getPieceFrom());
+		getPieceAt(move.getTo()).updateMove();
+		removePiece(move.getFrom());
+		int x = move.getTo().getX();
+		if (move.isCastlingQueen()) {
+			setPieceAtLocation(new Location(x, 3), pieceBoard[x][0]);
+			getPieceAt(new Location(x, 3)).updateMove();
+			pieceBoard[x][0] = null;
+		}
+
+		else if (move.isCastlingKing()) {
+			setPieceAtLocation(new Location(x, 5), pieceBoard[x][7]);
+			getPieceAt(new Location(x, 5)).updateMove();
+			pieceBoard[x][7] = null;
+		}
+	}
+
+	private void passant(Move move, Move premove) {
+		move.setPrisoner(premove.getPieceFrom());
+		setPieceAtLocation(move.getTo(), move.getPieceFrom());
+		getPieceAt(move.getTo()).updateMove();
+		removePiece(premove.getTo());
+	}
+
+	public boolean makeMove(Move move) {
+		if (move == null)
+			return false;
+		if (move.getPieceFrom() == null)
+			return false;
+		if (move.getFrom().equals(move.getTo()))
+			return false;
+		if (move.getPrisoner() == null)
+			move.setPrisoner(getPieceAt(move.getTo()));
+		if (move.getPieceFrom().getAlliance() == getPlayer()) {
+			if (move.getPieceFrom().getRule().getRealLocationCanMove().contains(move.getTo())) {
+				if (move.isPromotion()) {
+					System.out.println("isPromotion");
+					promotion(move);
+				} else if (move.isCastlingKing() || move.isCastlingQueen()) {
+					System.out.println("isCastling");
+					castling(move);
+				} else if (move.passant(premove)) {
+					System.out.println("isPassant");
+					passant(move, premove);
+				} else if (!move.isCastlingKing() && !move.isCastlingQueen() && !move.isPassant()
+						&& !move.isPromotion()) {
+					System.out.println("isNormal");
+					normal(move);
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean unMakeMove(Move move, Move premove) {
+		if (move == null)
+			return false;
+		if (move.getPieceFrom() == null)
+			return false;
+		if (move.getFrom().equals(move.getTo()))
+			return false;
+		if (move.getPieceFrom().getAlliance() == getPlayer()) {
+			if (move.getPieceFrom().getRule().getRealLocationCanMove().contains(move.getTo())) {
+				if (move.isPromotion()) {
+					undoPromotion(move);
+				} else if (move.isCastlingKing() || move.isCastlingQueen()) {
+					undoCastling(move);
+				} else if (move.passant(premove)) {
+					undoPassant(move, premove);
+				} else if (!move.isCastlingKing() && !move.isCastlingQueen() && !move.isPassant()
+						&& !move.isPromotion()) {
+					undoNormal(move);
+				}
+				getPieceAt(move.getTo()).updateUndoMove();
+				setPremove(premove);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public Move getPremove() {
+		return premove;
+	}
+
+	public void setPremove(Move premove) {
+		this.premove = premove;
 	}
 
 }

@@ -1,9 +1,7 @@
 /action/
-/ai/
-/chess/
+/rule/
 /controller/
 /core/
-/demo/
 /gui/
-/rule/
-/thuatngu.txt
+/demo/
+/chess/

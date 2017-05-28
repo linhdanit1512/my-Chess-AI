@@ -106,6 +106,7 @@ public class Piece {
 
 	public void setLocation(Location location) {
 		this.location = location;
+		this.rule.setLocation(location);
 	}
 
 	public int getMove() {

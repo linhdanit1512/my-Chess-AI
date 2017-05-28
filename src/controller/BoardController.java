@@ -3,16 +3,11 @@ package controller;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
@@ -20,31 +15,29 @@ import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import action.ChessAction;
 import action.Move;
+import chess.Alliance;
 import chess.Piece;
 import chess.PieceType;
 import core.ChessBoard;
-import core.ChessGoalTest;
+import core.ChessGoalState;
 import core.Location;
 import core.Player;
-import core.Record;
 import core.Sound;
 import gui.Board;
-import rule.Castling;
+import rule.QueenRule;
 
-public class BoardController implements MouseListener, ActionListener {
-	ChessBoard model;
-	Board view;
-	ChessAction action;
-	int player;
+public class BoardController implements ActionListener {
+	private ChessBoard model;
+	private Board view;
+	private ChessAction action;
 	RecordController record;
 
 	public BoardController(ChessBoard model, Board view) {
 		super();
 		this.model = model;
 		this.view = view;
-		action = new ChessAction(model);
+		action = new ChessAction(model, view);
 		this.record = new RecordController(this);
-		player = model.getPlayer();
 		init();
 	}
 
@@ -55,12 +48,11 @@ public class BoardController implements MouseListener, ActionListener {
 		} catch (Exception e) {
 		}
 		ChessBoard model = new ChessBoard();
-		Board view = new Board(700);
+		Board view = new Board(600);
 		new BoardController(model, view);
 	}
 
 	void init() {
-		view.pnBoard.addMouseListener(this);
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				if (model.pieceBoard[i][j] != null) {
@@ -70,149 +62,39 @@ public class BoardController implements MouseListener, ActionListener {
 				view.btnBoard[i][j].addActionListener(this);
 			}
 		}
-	}
-
-	private List<Piece> listPiece = new ArrayList<>();
-	Map<Piece, List<Location>> mapResult = new HashMap<Piece, List<Location>>();
-
-	public Map<Piece, List<Location>> getAllRule() {
-		if (mapResult == null) {
-			mapResult = new HashMap<Piece, List<Location>>();
-		}
-		if (mapResult.size() == 0) {
-			if (listPiece == null) {
-				listPiece = new ArrayList<>();
-			}
-			if (listPiece.size() == 0) {
-				if (model.getPlayer() == Player.PLAYER || model.getPlayer() == Player.COMPUTER2) {
-					listPiece = model.listWhiteAlliance;
-				} else if (model.getPlayer() == Player.PLAYER2 || model.getPlayer() == Player.COMPUTER) {
-					listPiece = model.listBlackAlliance;
-				}
-			}
-
-			for (Piece piece : listPiece) {
-				if (piece != null) {
-					if (piece.getRule().getRealLocationCanMove() != null
-							&& !piece.getRule().getRealLocationCanMove().isEmpty())
-						mapResult.put(piece, piece.getRule().getRealLocationCanMove());
-				}
-			}
-		}
-		return mapResult;
-	}
-
-	public void clearMapRule() {
-		listPiece = new ArrayList<>();
-		mapResult = new HashMap<Piece, List<Location>>();
-	}
-
-	/**
-	 * Mouse Listener
-	 */
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-
-	}
-
-	/**
-	 * hien chi dan cac nuoc co the di khi di chuyen chuot qua quan co
-	 * 
-	 */
-
-	List<JButton> btnEntered = new ArrayList<JButton>();
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		if (listPiece == null || listPiece.size() == 0) {
-			listPiece = new ArrayList<>();
-			if (model.getPlayer() == Player.PLAYER || model.getPlayer() == Player.COMPUTER2) {
-				listPiece = model.listWhiteAlliance;
-			} else if (model.getPlayer() == Player.PLAYER2 || model.getPlayer() == Player.COMPUTER) {
-				listPiece = model.listBlackAlliance;
-			}
-		}
-
-		for (Piece piece : listPiece) {
-
-			if (e.getSource() == view.btnBoard[piece.getLocation().getX()][piece.getLocation().getY()]) {
-				btnEntered.add(view.btnBoard[piece.getLocation().getX()][piece.getLocation().getY()]);
-				view.btnBoard[piece.getLocation().getX()][piece.getLocation().getY()].setBorderPainted(true);
-				view.btnBoard[piece.getLocation().getX()][piece.getLocation().getY()]
-						.setBorder(BorderFactory.createEtchedBorder(3, Color.BLUE, Color.RED));
-
-				List<Location> rule = getAllRule().get(piece);
-				if (rule != null) {
-					for (Location l : rule) {
-						btnEntered.add(view.btnBoard[l.getX()][l.getY()]);
-						view.btnBoard[l.getX()][l.getY()].setBorderPainted(true);
-						view.btnBoard[l.getX()][l.getY()]
-								.setBorder(BorderFactory.createEtchedBorder(2, Color.BLUE, Color.GREEN));
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * tro lai thuong khi chuot ra khoi quan co
-	 * 
-	 */
-	@Override
-	public void mouseExited(MouseEvent e) {
-		if (btnEntered != null && !btnEntered.isEmpty()) {
-			for (JButton btn : btnEntered) {
-				btn.setBorderPainted(false);
-				btn.setBorder(null);
-			}
-		}
-		btnEntered.clear();
-	}
-
-	/**
-	 * lay quan co khi nhan chuot
-	 */
-	@Override
-	public void mousePressed(MouseEvent e) {
-
-	}
-
-	/**
-	 * Khi tha chuot ra
-	 */
-	@Override
-	public void mouseReleased(MouseEvent e) {
 
 	}
 
 	Location to, from;
 	Sound sound = new Sound();
-	int count = 0;
+	boolean isEndGame;
+	private Piece pricePromotion;
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		for (int i = 0; i < 8; i++) {
-			for (int j = 0; j < 8; j++) {
-				if (view.btnBoard[i][j] == e.getSource()) {
-					/**
-					 * chon quan co lan dau hoac chon quan co khac
-					 */
-					if (from == null || (model.getPieceAt(new Location(i, j)) != null
-							&& model.getPieceAt(new Location(i, j)).getAlliance() == model.getPlayer())) {
+		if (!isEndGame) {
+			for (int i = 0; i < 8; i++) {
+				for (int j = 0; j < 8; j++) {
+					if (view.btnBoard[i][j] == e.getSource()) {
+						/**
+						 * chon quan co lan dau hoac chon quan co khac
+						 */
+						if (from == null || (model.getPieceAt(new Location(i, j)) != null
+								&& model.getPieceAt(new Location(i, j)).getAlliance() == model.getPlayer())) {
 
-						if (view.btnBoard[i][j] != null && model.pieceBoard[i][j] != null) {
-							if (model.pieceBoard[i][j].getAlliance() == model.getPlayer()) {
-								Piece piece = model.pieceBoard[i][j];
-								click(piece);
-								return;
+							if (view.btnBoard[i][j] != null && model.pieceBoard[i][j] != null) {
+								if (model.pieceBoard[i][j].getAlliance() == model.getPlayer()) {
+									Piece piece = model.pieceBoard[i][j];
+									click(piece);
+									return;
+								}
 							}
 						}
-					}
 
-					if (from != null && to == null) {
-						to = new Location(i, j);
-						move(to);
+						if (from != null && to == null) {
+							to = new Location(i, j);
+							move(to);
+						}
 					}
 				}
 			}
@@ -221,8 +103,8 @@ public class BoardController implements MouseListener, ActionListener {
 
 	public void click(Piece piece) {
 		if (piece != null) {
-			view.resetBorderIgnore(piece.getLocation());
 			if (piece.getAlliance() == model.getPlayer()) {
+				view.resetBorderIgnore(piece.getLocation());
 				from = piece.getLocation();
 				if (to != null) {
 					view.btnBoard[to.getX()][to.getY()].setBorder(null);
@@ -230,9 +112,9 @@ public class BoardController implements MouseListener, ActionListener {
 				}
 				view.btnBoard[from.getX()][from.getY()].setBorderPainted(true);
 				view.btnBoard[from.getX()][from.getY()]
-						.setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
-				if (getAllRule().get(model.getPieceAt(from)) != null)
-					for (Location l : getAllRule().get(model.getPieceAt(from))) {
+						.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED, Color.CYAN, Color.RED));
+				if (model.getPieceAt(from) != null)
+					for (Location l : model.getPieceAt(from).getRule().getRealLocationCanMove()) {
 						view.btnBoard[l.getX()][l.getY()].setBorderPainted(true);
 						view.btnBoard[l.getX()][l.getY()]
 								.setBorder(BorderFactory.createEtchedBorder(2, Color.BLUE, Color.GREEN));
@@ -242,106 +124,91 @@ public class BoardController implements MouseListener, ActionListener {
 		}
 	}
 
+	private boolean check = false;
+
 	public void move(Location to) {
+		if (from == null)
+			return;
 		if (from.equals(to)) {
 			to = null;
 			return;
 		}
-
 		Move move = new Move(from, to, model.getPieceAt(from), model.getPieceAt(to));
-
-		if (isCastling(move)) {
-			int x = move.getTo().getX();
-			int y = move.getTo().getY();
-			if (y == 2) {
-				view.btnBoard[x][3].setIcon(new ImageIcon("image\\" + model.pieceBoard[x][0].getLinkImg()));
-				view.btnBoard[x][0].setIcon(null);
-			}
-
-			if (y == 6) {
-				view.btnBoard[x][5].setIcon(new ImageIcon("image\\" + model.pieceBoard[x][7].getLinkImg()));
-				view.btnBoard[x][7].setIcon(null);
-			}
-			view.btnBoard[from.getX()][from.getY()].setIcon(null);
-			sound.playSound("sound\\Capture.WAV");
+//		PromotionMessage pro = new PromotionMessage(this, move);
+//		System.out.println(check);
+		if (move.isPromotion()) {
+			move.setPiecePromotion(promotionPiece(move));
+			// if (check == false) {
+			// pro.setVisible(true);
+			// } else {
+			// System.out.println("pricePromotion: " + pricePromotion);
+			// move.setPiecePromotion(pricePromotion);
+			// System.out.println("move.getPiecePromotion()" +
+			// move.getPiecePromotion());
+			// Move m = action.execute(move);
+			// if (m != null) {
+			// System.out.println(model.getPremove());
+			// from = null;
+			// int check = check();
+			// if (check == ChessGoalState.CHECK) {
+			// move.setChess(true);
+			// } else if (check == ChessGoalState.CHECKMATE) {
+			// move.setChessmate(true);
+			// } else if (check == ChessGoalState.DRAW) {
+			// move.setDraw(true);
+			// }
+			// view.validate();
+			// model.printBoard();
+			//
+			// } else {
+			// to = null;
+			// return;
+			// }
+			// }
 		}
-		// them vao stack nuoc di nay
-		if (action.push(move)) {
-			if (move.getPrisoner() == null)
-				sound.playSound("sound\\Move.WAV");
-			else
-				sound.playSound("sound\\eat.wav");
+		// System.out.println("System.out.println(action.push(new Move(new
+		// Location(" + from.getX() + "," + from.getY()
+		// + "), new Location(" + to.getX() + ", " + to.getY() + "))));");
 
-			// reset lại border cho các ô của bàn cờ
-			view.resetBorderIgnore(to);
-			view.btnBoard[to.getX()][to.getY()]
-					.setIcon(new ImageIcon("image\\" + action.peek().getPieceFrom().getLinkImg()));
-
-			// loại icon của ô from vừa đi
-			view.btnBoard[from.getX()][from.getY()].setIcon(null);
-			String players = player();
-
-			// thêm 1 bước đi vào trong kì phổ
-			record.view.pnRecord.add(new Record(action.getCount(), players, move));
-
-			// set lại lượt chơi cho người chơi và máy
-			if (model.getPlayer() == Player.PLAYER || model.getPlayer() == Player.COMPUTER2) {
-				model.setPlayer(Player.COMPUTER);
-			} else if (model.getPlayer() == Player.PLAYER2 || model.getPlayer() == Player.COMPUTER)
-				model.setPlayer(Player.PLAYER);
-			System.out.println("System.out.println(action.push(new Move(new Location(" + from.getX() + "," + from.getY()
-					+ "), new Location(" + to.getX() + ", " + to.getY() + "))));");
-			setPlayer();
-
-			// thông báo cập nhật tới các Observer
-			model.setMeasurements(model.getPlayer(), model.pieceBoard);
-
-			// xóa thông tin map.
-			clearMapRule();
+		// else {
+		Move m = action.execute(move);
+		if (m != null) {
+			System.out.println(model.getPremove());
 			from = null;
-			check();
+			int check = check();
+			if (check == ChessGoalState.CHECK) {
+				move.setChess(true);
+			} else if (check == ChessGoalState.CHECKMATE) {
+				move.setChessmate(true);
+			} else if (check == ChessGoalState.DRAW) {
+				move.setDraw(true);
+			}
 			view.validate();
-//			for(Map.Entry<Piece, List<Location>> map : getAllRule().entrySet()){
-//				System.out.print(map.getKey().getLinkImg());
-//				for(Location l : map.getValue()){
-//					System.out.print(l.toString()+"\t");
-//				}
-//				System.out.println();
-//			}
 			model.printBoard();
-
 		} else {
 			to = null;
 			return;
 		}
+		// }
 	}
 
-	public boolean isCastling(Move move) {
-		if (move != null) {
-			if (move.getPieceFrom() != null && move.getPieceFrom().getMove() > 0)
-				return false;
-			if (move.getPieceFrom().getType().equals(PieceType.KING)) {
-				if (move.getPieceFrom().getRule().getRule() != null) {
-					Castling castling = (Castling) move.getPieceFrom().getRule().getRule();
-					List<Location> list = castling.castling(move.getPieceFrom());
-					if (list != null && !list.isEmpty()) {
-						if (list.contains(move.getTo())) {
-							return true;
-						}
-					}
-				}
-			}
-		}
-		return false;
+	private Piece promotionPiece(Move move) {
+		Piece p = new Piece(move.getTo(), PieceType.QUEEN, 'Q', new QueenRule(model, move.getTo()), Alliance.WHITE, 90,
+				"whitequeen.png");
+		p.setMove(0);
+		return p;
 	}
 
 	public int check() {
 		// kiểm tra vua có bị chiếu hay ko
-		if (ChessGoalTest.checkmate(model)) {
+		if (ChessGoalState.checkmate(model)) {
 			Piece king = model.getKing().get(getPlayer());
 			// lấy tọa độ của vua
 			Location l = king.getLocation();
-			List<Piece> tmp = king.getRule().getEnemyControlAtLocation(l, king.getAlliance());
+			List<Piece> tmp = new ArrayList<>();
+			List<Piece> enemy = king.getRule().getEnemyControlAtLocation(l, king.getAlliance());
+			if (enemy != null && !enemy.isEmpty())
+				tmp.addAll(enemy);
 			tmp.add(king);
 
 			for (Piece p : tmp) {
@@ -350,7 +217,8 @@ public class BoardController implements MouseListener, ActionListener {
 			}
 
 			// kiem tra chieu bi
-			if (ChessGoalTest.checkWin(model)) {
+			if (ChessGoalState.checkWin(model)) {
+				isEndGame = true;
 				String message = "";
 				if (model.getPlayer() == Player.PLAYER) {
 					sound.playSound("sound\\lost.wav");
@@ -367,36 +235,67 @@ public class BoardController implements MouseListener, ActionListener {
 				view.pnRecord.btnRedo.removeActionListener(record);
 				view.pnRecord.btnUndo.removeActionListener(record);
 				JOptionPane.showMessageDialog(null, message, "End game message", JOptionPane.INFORMATION_MESSAGE, null);
-				return 1;
+				return ChessGoalState.CHECKMATE;
 			}
-			 sound.playSound("sound\\check.wav");
-			return 3;
+			sound.playSound("sound\\check.wav");
+			return ChessGoalState.CHECK;
 
-		} else if (ChessGoalTest.checkDraw(model, action)) {
+		} else if (ChessGoalState.checkDraw(model, action)) {
+			isEndGame = true;
 			sound.playSound("sound\\draw.wav");
 			JOptionPane.showMessageDialog(null, "You draw with computer", "End game message",
 					JOptionPane.INFORMATION_MESSAGE, null);
-			return 2;
+			return ChessGoalState.DRAW;
 		}
 		return 0;
-	}
-
-	public String player() {
-		String players = "";
-		if (model.getPlayer() == Player.COMPUTER) {
-			players = "COMPUTER:";
-		} else if (model.getPlayer() == Player.PLAYER) {
-			players = "YOU:";
-		}
-		return players;
 	}
 
 	public int getPlayer() {
 		return model.getPlayer();
 	}
 
-	public void setPlayer() {
-		this.player = model.getPlayer();
+	public ChessBoard getModel() {
+		return model;
+	}
+
+	public Board getView() {
+		return view;
+	}
+
+	public ChessAction getAction() {
+		return action;
+	}
+
+	public RecordController getRecord() {
+		return record;
+	}
+
+	public void setCheck(boolean check) {
+		this.check = check;
+	}
+
+	public Location getTo() {
+		return to;
+	}
+
+	public void setTo(Location to) {
+		this.to = to;
+	}
+
+	public Location getFrom() {
+		return from;
+	}
+
+	public void setFrom(Location from) {
+		this.from = from;
+	}
+
+	public Piece getPricePromotion() {
+		return pricePromotion;
+	}
+
+	public void setPricePromotion(Piece pricePromotion) {
+		this.pricePromotion = pricePromotion;
 	}
 
 }

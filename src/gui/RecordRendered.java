@@ -23,7 +23,7 @@ public class RecordRendered extends JPanel implements ListCellRenderer<Record> {
 	public RecordRendered() {
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-		setPreferredSize(new Dimension(310, 25));
+		setPreferredSize(new Dimension(230, 25));
 		setBackground(Color.WHITE);
 		int height = 25;
 		pn1 = new JPanel();
@@ -55,7 +55,7 @@ public class RecordRendered extends JPanel implements ListCellRenderer<Record> {
 
 		pn1.setPreferredSize(new Dimension(30, height));
 		pn2.setPreferredSize(new Dimension(75, height));
-		pn3.setPreferredSize(new Dimension(205, height));
+		pn3.setPreferredSize(new Dimension(125, height));
 		pn1.add(lblOrder);
 		pn2.add(lblPlayer);
 		pn3.add(lblMove);
@@ -94,7 +94,7 @@ public class RecordRendered extends JPanel implements ListCellRenderer<Record> {
 			boolean isSelected, boolean cellHasFocus) {
 		lblOrder.setText(record.getOrder() + ".");
 		lblPlayer.setText(record.getPlayer());
-		lblMove.setText(record.getMove().toFullString());
+		lblMove.setText(record.getMove().toString());
 
 		// when select item
 		if (isSelected) {

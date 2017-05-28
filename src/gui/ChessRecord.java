@@ -20,7 +20,7 @@ public class ChessRecord extends JPanel {
 	DecoButton deco = new DecoButton();
 
 	public ChessRecord() {
-		setSize(new Dimension(300, 500));
+		setSize(new Dimension(270, 400));
 		createRecordPane();
 	}
 
@@ -28,8 +28,8 @@ public class ChessRecord extends JPanel {
 
 		pnRecord = new JPanel();
 		pnRecord.setLayout(new BorderLayout());
-		pnRecord.setMinimumSize(new Dimension(300, getHeight()));
-		pnRecord.setPreferredSize(new Dimension(300, getHeight()));
+		pnRecord.setMinimumSize(new Dimension(250, getHeight()));
+		pnRecord.setPreferredSize(new Dimension(250, getHeight()));
 
 		pnRecordContent = new JPanel();
 		model = new DefaultListModel<Record>();
@@ -38,6 +38,7 @@ public class ChessRecord extends JPanel {
 		jlist.setAutoscrolls(true);
 		jlist.setCellRenderer(new RecordRendered());
 		JScrollPane scroll = new JScrollPane(jlist);
+		scroll.getVerticalScrollBar().setValue(scroll.getVerticalScrollBar().getMaximum());
 		pnRecordContent.add(scroll, BorderLayout.CENTER);
 
 		JPanel pnRedoUndo = new JPanel();

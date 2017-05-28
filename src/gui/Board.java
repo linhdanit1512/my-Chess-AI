@@ -15,7 +15,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -23,13 +22,16 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
 
+import action.ChessAction;
 import action.Move;
-import chess.Piece;
-import chess.PieceType;
 import controller.BoardController;
 import core.ChessBoard;
 import core.Location;
+import core.Player;
+import core.Record;
+import core.Sound;
 
 public class Board extends JFrame implements ActionListener {
 
@@ -42,9 +44,8 @@ public class Board extends JFrame implements ActionListener {
 	public JButton btnBoard[][];
 	JButton btnRedo, btnUndo;
 	DecoButton create = new DecoButton();
-	JLayeredPane layerPop;
-
-	public JLabel lblPieceDragged;
+	Sound sound = new Sound();
+	private Move premove;
 
 	public Board(int height) {
 		setLayout(new BorderLayout());
@@ -53,7 +54,6 @@ public class Board extends JFrame implements ActionListener {
 		createBoard(height);
 		createPlayerPane();
 		createRecordPane();
-		createLayeredPane();
 
 		pack();
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -69,7 +69,7 @@ public class Board extends JFrame implements ActionListener {
 	JMenuItem itemHelp = new JMenuItem("Help");
 	JMenuItem itemIntro = new JMenuItem("Introduction");
 
-	public void createMenuBar() {
+	private void createMenuBar() {
 		JMenuBar menubar = new JMenuBar();
 		JMenu menuOption = new JMenu("Option");
 		JMenu menuHelp = new JMenu("Help");
@@ -117,7 +117,7 @@ public class Board extends JFrame implements ActionListener {
 		setJMenuBar(menubar);
 	}
 
-	public void createBoard(int height) {
+	private void createBoard(int height) {
 		pnBoard = new JPanel() {
 			/**
 			 * 
@@ -151,17 +151,7 @@ public class Board extends JFrame implements ActionListener {
 		getContentPane().add(pnBoard, BorderLayout.CENTER);
 	}
 
-	public void createLayeredPane() {
-		layerPop = super.getLayeredPane();
-		layerPop.setLayer(this, JLayeredPane.POPUP_LAYER);
-		layerPop.setLayout(null);
-		// layerPop.setOpaque(false);
-		lblPieceDragged = new JLabel();
-		layerPop.add(lblPieceDragged);
-		layerPop.setVisible(true);
-	}
-
-	public void createPlayerPane() {
+	private void createPlayerPane() {
 		// chua cac quan co tu binh
 		JPanel pnPrisoner = new JPanel();
 		pnPrisoner.setLayout(new BoxLayout(pnPrisoner, BoxLayout.Y_AXIS));
@@ -181,6 +171,11 @@ public class Board extends JFrame implements ActionListener {
 		getContentPane().add(pnPrisoner, BorderLayout.WEST);
 	}
 
+	private void createRecordPane() {
+		pnRecord = new ChessRecord();
+		getContentPane().add(pnRecord, BorderLayout.EAST);
+	}
+
 	public void resetBorderIgnore(Location l) {
 		for (int i = 0; i < btnBoard.length; i++) {
 			for (int j = 0; j < btnBoard[0].length; j++) {
@@ -188,7 +183,11 @@ public class Board extends JFrame implements ActionListener {
 			}
 		}
 		btnBoard[l.getX()][l.getY()].setBorderPainted(true);
-		btnBoard[l.getX()][l.getY()].setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
+//		btnBoard[l.getX()][l.getY()]
+//				.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED, Color.BLUE, Color.RED));
+		btnBoard[l.getX()][l.getY()].setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createEtchedBorder(EtchedBorder.RAISED, Color.BLUE, Color.RED),
+				BorderFactory.createRaisedBevelBorder()));
 	}
 
 	public void resetBorder() {
@@ -199,63 +198,125 @@ public class Board extends JFrame implements ActionListener {
 		}
 	}
 
-	public void createRecordPane() {
-		pnRecord = new ChessRecord();
-		getContentPane().add(pnRecord, BorderLayout.EAST);
-	}
-
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-	//
-
-	public void redo(Move move) {
-		Piece pieceFrom = move.getPieceFrom();
-		Location to = move.getTo();
-		Location from = move.getFrom();
-		btnBoard[from.getX()][from.getY()].setIcon(null);
-		btnBoard[to.getX()][to.getY()].setIcon(new ImageIcon("image\\" + pieceFrom.getLinkImg()));
-
-	}
-
-	public void undo(Move move) {
-		Piece pieceFrom = move.getPieceFrom();
-		Piece prisoner = move.getPrisoner();
-		Location to = move.getTo();
-		Location from = move.getFrom();
-		btnBoard[from.getX()][from.getY()].setIcon(new ImageIcon("image\\" + pieceFrom.getLinkImg()));
-		if (prisoner != null)
-			btnBoard[to.getX()][to.getY()].setIcon(new ImageIcon("image\\" + prisoner.getLinkImg()));
-		else
-			btnBoard[to.getX()][to.getY()].setIcon(null);
-
-		if (pieceFrom.getType() == PieceType.KING) {
-			if (from.getX() - to.getX() == 0 && Math.abs(from.getY() - to.getY()) == 2) {
-				int x = move.getTo().getX();
-				int y = move.getTo().getY();
-				if (y == 2) {
-					btnBoard[x][0].setIcon(btnBoard[x][3].getIcon());
-					btnBoard[x][3].setIcon(null);
-				} else if (y == 6) {
-					btnBoard[x][7].setIcon(btnBoard[x][5].getIcon());
-					btnBoard[x][5].setIcon(null);
-				}
+	public boolean makeMove(Move move, int player) {
+		if (move != null) {
+			if (move.isPromotion()) {
+				System.out.println("view isPromotion");
+				promotion(move);
+			} else if (move.isCastlingKing() || move.isCastlingQueen()) {
+				System.out.println("view isCastling");
+				castling(move);
+			} else if (move.isPassant()) {
+				System.out.println("view isPassant");
+				passant(move);
+			} else if (!move.isCastlingKing() && !move.isCastlingQueen() && !move.isPassant() && !move.isPromotion()) {
+				System.out.println("view isNormal");
+				normal(move);
 			}
+			resetBorderIgnore(move.getTo());
+			// thêm 1 bước đi vào trong kì phổ
+			pnRecord.add(new Record(ChessAction.count, player(player), move));
+			setPremove(move);
+			return true;
+		}
+		return false;
+	}
+
+	public boolean unMakeMove(Move move, Move premove) {
+		if (move != null) {
+			if (move.isPromotion()) {
+				undoPromotion(move);
+			} else if (move.isCastlingKing() ^ move.isCastlingQueen()) {
+				undoCastling(move);
+			} else if (move.passant(premove)) {
+				undoPassant(move);
+			} else if (!move.isCastlingKing() && !move.isCastlingQueen() && !move.isPassant() && !move.isPromotion()) {
+				undoNormal(move);
+			}
+			resetBorderIgnore(premove.getTo());
+			setPremove(premove);
+			// xóa một nước đi trong kì phổ
+			pnRecord.remove();
+			return true;
+		}
+		return false;
+	}
+
+	private void undoPromotion(Move move) {
+		getPiece(move.getTo()).setIcon(null);
+		getPiece(move.getFrom()).setIcon(new ImageIcon("image\\" + move.getPieceFrom()));
+	}
+
+	private void undoNormal(Move move) {
+		getPiece(move.getFrom()).setIcon(new ImageIcon("image\\" + move.getPieceFrom().getLinkImg()));
+		if (move.getPrisoner() != null) {
+			getPiece(move.getTo()).setIcon(new ImageIcon("image\\" + move.getPrisoner().getLinkImg()));
+		} else {
+			getPiece(move.getTo()).setIcon(null);
 		}
 	}
 
-	public void setIcon(String icon) {
-		lblPieceDragged.setIcon(new ImageIcon(icon));
+	private void undoPassant(Move move) {
+		getPiece(premove.getTo()).setIcon(new ImageIcon("image\\" + move.getPrisoner().getLinkImg()));
+		getPiece(move.getFrom()).setIcon(new ImageIcon("image\\" + move.getPieceFrom().getLinkImg()));
+		getPiece(move.getTo()).setIcon(null);
+	}
+
+	private void undoCastling(Move move) {
+		getPiece(move.getFrom()).setIcon(new ImageIcon("image\\" + move.getPieceFrom().getLinkImg()));
+		getPiece(move.getTo()).setIcon(null);
+		int x = move.getFrom().getX();
+		if (move.isCastlingQueen()) {
+			getPiece(new Location(x, 0)).setIcon(btnBoard[x][3].getIcon());
+			getPiece(new Location(x, 3)).setIcon(null);
+		}
+		if (move.isCastlingKing()) {
+			getPiece(new Location(x, 7)).setIcon(btnBoard[x][5].getIcon());
+			getPiece(new Location(x, 5)).setIcon(null);
+		}
+	}
+
+	private void normal(Move move) {
+		getPiece(move.getTo()).setIcon(new ImageIcon("image\\" + move.getPieceFrom().getLinkImg()));
+		getPiece(move.getFrom()).setIcon(null);
+		if (move.getPrisoner() == null)
+			sound.playSound("sound\\Move.WAV");
+		else
+			sound.playSound("sound\\eat.wav");
+	}
+
+	private void promotion(Move move) {
+		if (move != null && move.getPiecePromotion() != null) {
+			getPiece(move.getTo()).setIcon(new ImageIcon("image\\" + move.getPiecePromotion().getLinkImg()));
+			getPiece(move.getFrom()).setIcon(null);
+			sound.playSound("sound\\Move.WAV");
+		}
+	}
+
+	private void castling(Move move) {
+		move.getPieceFrom().getRule().setRule(null);
+		int x = move.getTo().getX();
+		if (move.isCastlingQueen()) {
+			btnBoard[x][3].setIcon(btnBoard[x][0].getIcon());
+			btnBoard[x][0].setIcon(null);
+		}
+
+		else if (move.isCastlingKing()) {
+			btnBoard[x][5].setIcon(btnBoard[x][7].getIcon());
+			btnBoard[x][7].setIcon(null);
+		}
+		getPiece(move.getFrom()).setIcon(null);
+		getPiece(move.getTo()).setIcon(new ImageIcon("image\\" + move.getPieceFrom().getLinkImg()));
+		sound.playSound("sound\\Capture.WAV");
+	}
+
+	private void passant(Move move) {
+		if (move != null && move.isPassant() && move.getPrisoner() != null) {
+			getPiece(move.getTo()).setIcon(new ImageIcon("image\\" + move.getPieceFrom().getLinkImg()));
+			getPiece(move.getFrom()).setIcon(null);
+			getPiece(move.getPrisoner().getLocation()).setIcon(null);
+			sound.playSound("sound\\eat.wav");
+		}
 	}
 
 	@Override
@@ -293,7 +354,26 @@ public class Board extends JFrame implements ActionListener {
 		}
 	}
 
-	public JLayeredPane getLayeredPane() {
-		return this.layerPop;
+	public String player(int player) {
+		String players = "";
+		if (player == Player.COMPUTER) {
+			players = "COMPUTER:";
+		} else if (player == Player.PLAYER) {
+			players = "YOU:";
+		}
+		return players;
 	}
+
+	public JButton getPiece(Location location) {
+		return btnBoard[location.getX()][location.getY()];
+	}
+
+	public Move getPremove() {
+		return premove;
+	}
+
+	public void setPremove(Move premove) {
+		this.premove = premove;
+	}
+
 }

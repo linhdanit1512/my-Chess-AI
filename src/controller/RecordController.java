@@ -1,12 +1,9 @@
 package controller;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-
-import javax.swing.BorderFactory;
 
 import action.ChessAction;
 import action.Move;
@@ -17,14 +14,14 @@ import gui.Board;
 
 public class RecordController implements ActionListener, KeyListener {
 	private ChessAction action;
-	ChessBoard board;
-	Board view;
+	private ChessBoard board;
+	private Board view;
 
 	public RecordController(BoardController boardcontrol) {
 		super();
-		this.action = boardcontrol.action;
-		this.board = boardcontrol.model;
-		this.view = boardcontrol.view;
+		this.action = boardcontrol.getAction();
+		this.board = boardcontrol.getModel();
+		this.view = boardcontrol.getView();
 		init();
 	}
 
@@ -35,24 +32,7 @@ public class RecordController implements ActionListener, KeyListener {
 		view.pnRecord.btnUndo.addKeyListener(this);
 	}
 
-	void undo() {
-		Move move = action.undo();
-		if (move != null) {
-			view.undo(move);
-			view.pnRecord.remove();
-			Move preMove = action.peek();
-			if (preMove != null) {
-				view.resetBorderIgnore(preMove.getTo());
-				view.btnBoard[preMove.getTo().getX()][preMove.getTo().getY()]
-						.setBorder(BorderFactory.createEtchedBorder(5, Color.BLUE, Color.RED));
-			} else
-				view.resetBorder();
-			view.repaint();
-		}
-	}
-
-	void redo() {
-		Move move = action.redo();
+	public void addRecord(Move move) {
 		if (move != null) {
 			String player = "";
 			if (board.getPlayer() == Player.COMPUTER) {
@@ -60,11 +40,24 @@ public class RecordController implements ActionListener, KeyListener {
 			} else if (board.getPlayer() == Player.PLAYER) {
 				player = "YOU:";
 			}
-			view.pnRecord.add(new Record(action.getCount(), player, move));
-			view.redo(move);
-			view.resetBorderIgnore(move.getTo());
+			view.pnRecord.add(new Record(ChessAction.count, player, move));
 			view.repaint();
 		}
+	}
+
+	public void removeRecord(Move move) {
+		if (move != null) {
+			view.pnRecord.remove();
+			view.repaint();
+		}
+	}
+
+	void undo() {
+		removeRecord(action.undo());
+	}
+
+	void redo() {
+		addRecord(action.redo());
 	}
 
 	@Override
@@ -102,6 +95,18 @@ public class RecordController implements ActionListener, KeyListener {
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public ChessAction getAction() {
+		return action;
+	}
+
+	public ChessBoard getBoard() {
+		return board;
+	}
+
+	public Board getView() {
+		return view;
 	}
 
 }

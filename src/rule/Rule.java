@@ -8,32 +8,36 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
-import chess.Alliance;
+import action.Move;
 import chess.Piece;
 import chess.PieceType;
 import core.ChessBoard;
-import core.ChessGoalTest;
+import core.ChessGoalState;
 import core.Location;
 
 public abstract class Rule implements Serializable, Observer {
 
 	private static final long serialVersionUID = 8920250216050470567L;
+
 	Observable ob;
 	ChessBoard board;
 	protected Rule rule;
 	Location location;
+	protected Move premove;
 
 	public Rule(Observable ob, Rule rule, Location location) {
 		this.ob = ob;
 		this.rule = rule;
 		this.board = (ChessBoard) ob;
 		this.location = location;
+		this.premove = board.getPremove();
 	}
 
 	public Rule(Observable ob, Location location) {
 		this.ob = ob;
 		this.board = (ChessBoard) ob;
 		this.location = location;
+		this.premove = board.getPremove();
 	}
 
 	/**
@@ -103,7 +107,7 @@ public abstract class Rule implements Serializable, Observer {
 				listResult.put(king, list);
 				return listResult;
 
-			} else if (count==1){
+			} else if (count == 1) {
 				/**
 				 * khi chi co 1 quan co chieu toi vua
 				 */
@@ -115,20 +119,20 @@ public abstract class Rule implements Serializable, Observer {
 					List<Location> listCheckmateLocat = getDistanceLocation(king.getLocation(), enemy.getLocation());
 					listCheckmateLocat.add(enemy.getLocation());
 
-					List<Piece> myPieces = new ArrayList<Piece>();
-					if (king.getAlliance() == Alliance.BLACK)
-						myPieces = board.listBlackAlliance;
-					else if (king.getAlliance() == Alliance.WHITE)
-						myPieces = board.listWhiteAlliance;
-					for (Piece p : myPieces) {
-						List<Location> tmp = new ArrayList<Location>();
-						List<Location> myLocatsMove = p.getRule().getNormalRule();
-						for (Location l : listCheckmateLocat) {
-							if (myLocatsMove.contains(l))
-								tmp.add(l);
+					for (int i = 0; i < board.pieceBoard.length; i++) {
+						for (int j = 0; j < board.pieceBoard[0].length; j++) {
+							if (board.pieceBoard[i][j] != null
+									&& board.pieceBoard[i][j].getAlliance() == king.getAlliance()) {
+								List<Location> tmp = new ArrayList<Location>();
+								List<Location> myLocatsMove = board.pieceBoard[i][j].getRule().getNormalRule();
+								for (Location l : listCheckmateLocat) {
+									if (myLocatsMove.contains(l))
+										tmp.add(l);
+								}
+								if (tmp.size() > 0)
+									listResult.put(board.pieceBoard[i][j], tmp);
+							}
 						}
-						if (tmp.size() > 0)
-							listResult.put(p, tmp);
 					}
 				}
 			}
@@ -149,7 +153,7 @@ public abstract class Rule implements Serializable, Observer {
 			Piece piece = board.getPieceAt(location);
 			if (piece != null) {
 				// neu quan vua dang bi chieu
-				if (ChessGoalTest.checkmate(board) && piece.getAlliance() == board.getPlayer()) {
+				if (ChessGoalState.checkmate(board) && piece.getAlliance() == board.getPlayer()) {
 					List<Location> tmp = getAllListLocationCanMoveWhenCheckmate().get(piece);
 					if (tmp != null && !tmp.isEmpty())
 						result.addAll(tmp);
@@ -252,6 +256,8 @@ public abstract class Rule implements Serializable, Observer {
 	 * @return l1 va l2 nam tren cung 1 duong cheo
 	 */
 	public boolean checkCross(Location l1, Location l2) {
+		if (l1.equals(l2))
+			return false;
 		return (Math.abs(l1.getX() - l2.getX()) == Math.abs(l1.getY() - l2.getY()));
 	}
 
@@ -262,6 +268,8 @@ public abstract class Rule implements Serializable, Observer {
 	 * @return l1 va l2 cung nam tren 1 hang ngang
 	 */
 	public boolean checkHorizontal(Location l1, Location l2) {
+		if (l1.equals(l2))
+			return false;
 		return (l1.getX() == l2.getX());
 	}
 
@@ -272,13 +280,15 @@ public abstract class Rule implements Serializable, Observer {
 	 * @return l1 va l2 cung nam tren 1 cot doc
 	 */
 	public boolean checkVertical(Location l1, Location l2) {
+		if (l1.equals(l2))
+			return false;
 		return l1.getY() == l2.getY();
 	}
 
 	/**
 	 * 
 	 * @param location:
-	 *            vi tri can kiem tra
+	 *            <i> vi tri can kiem tra
 	 * @param color:
 	 *            mau cua quan can kiem tra
 	 * @return danh sach cac piece cua quan mau color co the toi vi tri location
@@ -293,19 +303,12 @@ public abstract class Rule implements Serializable, Observer {
 				Piece piece = board.pieceBoard[i][j];
 				// neu vi tri i,j co quan co
 				if (piece != null) {
-					//
-					// neu la quan chot thi no chi co the di thang ma ko the an
-					// thang, cho nen o day neu quan co o o^ cung cot voi vi tri
-					// location la quan chot thi ko can xet
-					//
-					// if (piece.getType() == PieceType.PAWN &&
-					// piece.getLocation().getY() == location.getY())
-					// continue;
-					// neu quan co o vi tri i,j co the di toi vi tri location
-					// thi add
-					if (piece.getRule().getAllLocationControl().contains(location)) {
-						if (piece.getAlliance() != color) {
-							result.add(piece);
+					List<Location> list = piece.getRule().getAllLocationControl();
+					if (list != null && !list.isEmpty()) {
+						if (list.contains(location)) {
+							if (piece.getAlliance() != color) {
+								result.add(piece);
+							}
 						}
 					}
 				}
@@ -370,7 +373,7 @@ public abstract class Rule implements Serializable, Observer {
 	public int checkValidTile(int paramX, int paramY) {
 		if (location == null)
 			return 0;
-		// vi tri ma quan do dang dung
+		// vi tri trung voi quan dang set
 		if (paramX == 0 && paramY == 0)
 			return 0;
 		if (paramX >= 0 && paramX < 8 && paramY >= 0 && paramY < 8) {
@@ -390,24 +393,13 @@ public abstract class Rule implements Serializable, Observer {
 		return 0;
 	}
 
-	public void printListLocationCanMove(Location location) {
-		ChessBoard board = (ChessBoard) ob;
-		if (board.getPieceAt(location) == null) {
-			System.out.println("O nay trong");
-			return;
-		}
-		System.out.println(location.toString());
-		System.out.println("==================");
-		for (Location l : getNormalRule())
-			System.out.println(l.toString());
-	}
-
 	@Override
 	public void update(Observable ob, Object arg) {
 		if (ob instanceof ChessBoard) {
 			ChessBoard observer = (ChessBoard) ob;
 			this.ob = observer;
 			this.board = observer;
+			this.premove = observer.getPremove();
 		}
 	}
 
@@ -421,6 +413,22 @@ public abstract class Rule implements Serializable, Observer {
 
 	public Rule getRule() {
 		return rule;
+	}
+
+	public void setRule(Rule rule) {
+		this.rule = rule;
+	}
+
+	public Observable getOb() {
+		return ob;
+	}
+
+	public Move getPremove() {
+		return premove;
+	}
+
+	public void setPremove(Move premove) {
+		this.premove = premove;
 	}
 
 }

@@ -6,10 +6,15 @@ import java.util.Stack;
 
 import action.ChessAction;
 import action.Move;
+import chess.Alliance;
 import chess.Piece;
 import chess.PieceType;
 
-public class ChessGoalTest {
+public class ChessGoalState {
+
+	public static final int CHECKMATE = 12;
+	public static final int DRAW = 13;
+	public static final int CHECK = 14;
 
 	/**
 	 * 
@@ -40,7 +45,7 @@ public class ChessGoalTest {
 	 *            bàn cờ hiện tại
 	 * 
 	 *            action: các nước đi đã đi
-	 *            
+	 * 
 	 * @return kiem tra co hoa.
 	 * 
 	 *         các trường hợp cờ hòa:
@@ -53,8 +58,9 @@ public class ChessGoalTest {
 	 * 
 	 *         4. Hòa 50 nước
 	 * 
-	 *         5. Hòa do 2 bên thỏa thuận đồng ý hòa (cái này chắc làm bên giao diện)
-	 *         
+	 *         5. Hòa do 2 bên thỏa thuận đồng ý hòa (cái này chắc làm bên giao
+	 *         diện)
+	 * 
 	 */
 	public static boolean checkDraw(ChessBoard board, ChessAction action) {
 		// neu vua dang bi chieu thi false
@@ -78,7 +84,7 @@ public class ChessGoalTest {
 	/**
 	 * 
 	 * @return kiem tra vua co bi chieu hay khong
-	 * @see rule.Rule.getAllLocationControl(Location)
+	 * @see rule.Rule.getAllLocationControl()
 	 * 
 	 */
 	public static boolean checkmate(ChessBoard board) {
@@ -86,8 +92,11 @@ public class ChessGoalTest {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				if (board.pieceBoard[i][j] != null && board.pieceBoard[i][j].getAlliance() != king.getAlliance()) {
-					if (board.pieceBoard[i][j].getRule().getAllLocationControl().contains(king.getLocation()))
-						return true;
+					List<Location> list = board.pieceBoard[i][j].getRule().getAllLocationControl();
+					if (list != null) {
+						if (list.contains(king.getLocation()))
+							return true;
+					}
 				}
 			}
 		}
@@ -108,15 +117,28 @@ public class ChessGoalTest {
 	 * 
 	 */
 	private static boolean notEnoughPower(ChessBoard board) {
+		List<Piece> white = new ArrayList<>();
+		List<Piece> black = new ArrayList<>();
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				if (board.pieceBoard[i][j] != null) {
+					if (board.pieceBoard[i][j].getAlliance() == Alliance.BLACK) {
+						black.add(board.pieceBoard[i][j]);
+					} else if (board.pieceBoard[i][j].getAlliance() == Alliance.WHITE) {
+						white.add(board.pieceBoard[i][j]);
+					}
+				}
+			}
+		}
 		/**
 		 * nếu trên bàn cờ chỉ có 2 quân vua
 		 */
-		if (board.listBlackAlliance.size() + board.listWhiteAlliance.size() == 2)
+		if (black.size() + white.size() == 2)
 			return true;
-		else if (board.listBlackAlliance.size() <= 2 && board.listWhiteAlliance.size() <= 2) {
+		else if (black.size() <= 2 && white.size() <= 2) {
 			List<Piece> tmp = new ArrayList<>();
-			tmp.addAll(board.listBlackAlliance);
-			tmp.addAll(board.listWhiteAlliance);
+			tmp.addAll(black);
+			tmp.addAll(white);
 			/**
 			 * vì trên bàn cờ luôn luôn phải có 2 quân vua, cho nên chỉ cần kiểm
 			 * tra xem quân còn lại có phải là quân cờ yếu hay ko
@@ -195,4 +217,5 @@ public class ChessGoalTest {
 
 		return false;
 	}
+
 }
