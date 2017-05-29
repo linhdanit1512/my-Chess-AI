@@ -7,7 +7,7 @@ import controller.BoardController;
 import core.ChessBoard;
 import gui.Board;
 
-public class Player_Computer implements Runnable {
+public class Player_Computer {
 	ChessBoard model;
 	Board view;
 	BoardController control;
@@ -20,16 +20,6 @@ public class Player_Computer implements Runnable {
 		}
 		model = new ChessBoard();
 		view = new Board(600);
-		control = new BoardController(model, view);
+		control = new BoardController(model, view, BoardController.PLAYER_COMPUTER);
 	}
-
-	@Override
-	public void run() {
-		while(true){
-			if(!control.isEndGame()){
-				
-			}
-		}
-	}
-
 }

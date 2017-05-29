@@ -9,12 +9,11 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import action.ChessAction;
 import action.Move;
+import ai.AlphaBeta;
 import chess.Alliance;
 import chess.Piece;
 import chess.PieceType;
@@ -28,29 +27,26 @@ import gui.PromotionMessage;
 import rule.QueenRule;
 
 public class BoardController implements ActionListener {
+	public static final int PLAYER_PLAYER = 1000;
+	public static final int PLAYER_COMPUTER = 2000;
+	public static final int COMPUTER_COMPUTER = 3000;
 	private ChessBoard model;
 	private Board view;
 	private ChessAction action;
 	RecordController record;
+	AlphaBeta search;
+	int depth = 5;
+	int type;
 
-	public BoardController(ChessBoard model, Board view) {
+	public BoardController(ChessBoard model, Board view, int type) {
 		super();
 		this.model = model;
 		this.view = view;
+		this.type = type;
 		action = new ChessAction(model, view);
 		this.record = new RecordController(this);
+		this.search = new AlphaBeta();
 		init();
-	}
-
-	public static void main(String[] args) {
-		try {
-			// UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-			UIManager.setLookAndFeel(new NimbusLookAndFeel());
-		} catch (Exception e) {
-		}
-		ChessBoard model = new ChessBoard();
-		Board view = new Board(600);
-		new BoardController(model, view);
 	}
 
 	void init() {
@@ -74,30 +70,88 @@ public class BoardController implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (!isEndGame) {
-			for (int i = 0; i < 8; i++) {
-				for (int j = 0; j < 8; j++) {
-					if (view.btnBoard[i][j] == e.getSource()) {
-						/**
-						 * chon quan co lan dau hoac chon quan co khac
-						 */
-						if (from == null || (model.getPieceAt(new Location(i, j)) != null
-								&& model.getPieceAt(new Location(i, j)).getAlliance() == model.getPlayer())) {
+			if (type == PLAYER_COMPUTER) {
+				player_computer(e);
+			} else if (type == PLAYER_PLAYER) {
+				player_player(e);
+			}
+		}
+	}
 
-							if (view.btnBoard[i][j] != null && model.pieceBoard[i][j] != null) {
-								if (model.pieceBoard[i][j].getAlliance() == model.getPlayer()) {
-									Piece piece = model.pieceBoard[i][j];
-									click(piece);
-									return;
-								}
+	public void player_player(ActionEvent e) {
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				if (view.btnBoard[i][j] == e.getSource()) {
+					/**
+					 * chon quan co lan dau hoac chon quan co khac
+					 */
+					if (from == null || (model.getPieceAt(new Location(i, j)) != null
+							&& model.getPieceAt(new Location(i, j)).getAlliance() == model.getPlayer())) {
+
+						if (view.btnBoard[i][j] != null && model.pieceBoard[i][j] != null) {
+							if (model.pieceBoard[i][j].getAlliance() == model.getPlayer()) {
+								Piece piece = model.pieceBoard[i][j];
+								click(piece);
+								return;
 							}
 						}
+					}
 
-						if (from != null && to == null) {
-							to = new Location(i, j);
-							move(to);
-						}
+					if (from != null && to == null) {
+						to = new Location(i, j);
+						move(to);
 					}
 				}
+			}
+		}
+	}
+
+	public void player_computer(ActionEvent e) {
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
+				if (view.btnBoard[i][j] == e.getSource()) {
+					/**
+					 * chon quan co lan dau hoac chon quan co khac
+					 */
+					if (from == null || (model.getPieceAt(new Location(i, j)) != null
+							&& model.getPieceAt(new Location(i, j)).getAlliance() == model.getPlayer())) {
+
+						if (view.btnBoard[i][j] != null && model.pieceBoard[i][j] != null) {
+							if (model.pieceBoard[i][j].getAlliance() == model.getPlayer()) {
+								Piece piece = model.pieceBoard[i][j];
+								click(piece);
+								return;
+							}
+						}
+					}
+
+					if (from != null && to == null) {
+						to = new Location(i, j);
+						move(to);
+					}
+					Move moveCom = search.alphabeta(model, model.getPlayer(), depth);
+					click(moveCom.getPieceFrom());
+					move(moveCom.getTo());
+					return;
+				}
+			}
+		}
+	}
+
+	public void computer_computer() {
+		while (true) {
+			try {
+				Move m1 = search.alphabeta(model, model.getPlayer(), 5);
+				click(m1.getPieceFrom());
+				Thread.sleep(500);
+				move(m1.getTo());
+
+				Move m2 = search.alphabeta(model, model.getPlayer(), 5);
+				click(m2.getPieceFrom());
+				Thread.sleep(500);
+				move(m2.getTo());
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -136,9 +190,7 @@ public class BoardController implements ActionListener {
 		}
 		Move move = new Move(from, to, model.getPieceAt(from), model.getPieceAt(to));
 		if (move.isPromotion()) {
-//			move.setPiecePromotion(promotionPiece(move));
 			PromotionMessage pro = new PromotionMessage(this, move);
-			// System.out.println(check);
 			if (check == false) {
 				pro.setVisible(true);
 				view.setEnabled(false);
@@ -150,35 +202,6 @@ public class BoardController implements ActionListener {
 					move.setPiecePromotion(promotionPiece(move));
 			}
 		}
-		// }
-		// System.out.println("pricePromotion: " + pricePromotion);
-		// System.out.println("move.getPiecePromotion()" +
-		// move.getPiecePromotion());
-		// Move m = action.execute(move);
-		// if (m != null) {
-		// System.out.println(model.getPremove());
-		// from = null;
-		// int check = check();
-		// if (check == ChessGoalState.CHECK) {
-		// move.setChess(true);
-		// } else if (check == ChessGoalState.CHECKMATE) {
-		// move.setChessmate(true);
-		// } else if (check == ChessGoalState.DRAW) {
-		// move.setDraw(true);
-		// }
-		// view.validate();
-		// model.printBoard();
-		//
-		// } else {
-		// to = null;
-		// return;
-		// }
-		// }
-		// System.out.println("System.out.println(action.push(new Move(new
-		// Location(" + from.getX() + "," + from.getY()
-		// + "), new Location(" + to.getX() + ", " + to.getY() + "))));");
-
-		// else {
 		Move m = action.execute(move);
 		if (m != null) {
 			System.out.println(model.getPremove());
@@ -197,7 +220,6 @@ public class BoardController implements ActionListener {
 			to = null;
 			return;
 		}
-		// }
 	}
 
 	private Piece promotionPiece(Move move) {

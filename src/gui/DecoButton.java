@@ -1,5 +1,7 @@
 package gui;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -12,6 +14,20 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
 public class DecoButton {
+	
+	public JButton createButton(ImageIcon icon, String text, Font font, Color color) {
+		JButton btn = new JButton();
+		btn.setBorderPainted(false);
+		btn.setContentAreaFilled(false);
+		btn.setFocusPainted(false);
+		btn.setIcon(icon);
+		btn.setText(text);
+		btn.setHorizontalTextPosition(SwingConstants.CENTER);
+		btn.setVerticalTextPosition(SwingConstants.CENTER);
+		btn.setFont(font);
+		btn.setForeground(color);
+		return btn;
+	}
 
 	public JButton paintButton() {
 		JButton btn = new JButton();

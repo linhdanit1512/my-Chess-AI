@@ -7,7 +7,7 @@ import controller.BoardController;
 import core.ChessBoard;
 import gui.Board;
 
-public class Player_Player{
+public class Player_Player {
 	public Player_Player() {
 		try {
 			// UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
@@ -16,6 +16,6 @@ public class Player_Player{
 		}
 		ChessBoard model = new ChessBoard();
 		Board view = new Board(600);
-		new BoardController(model, view);
+		new BoardController(model, view, BoardController.PLAYER_PLAYER);
 	}
 }

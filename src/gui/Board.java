@@ -24,18 +24,16 @@ import javax.swing.border.EtchedBorder;
 
 import action.ChessAction;
 import action.Move;
-import controller.BoardController;
-import core.ChessBoard;
 import core.Location;
 import core.Player;
 import core.Record;
 import core.Sound;
+import game.Computer_Computer;
+import game.Player_Computer;
+import game.Player_Player;
 
 public class Board extends JFrame implements ActionListener {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 3032726387546045087L;
 	public JPanel pnBoard;
 	public ChessRecord pnRecord;
@@ -47,6 +45,7 @@ public class Board extends JFrame implements ActionListener {
 	private Move premove;
 
 	public Board(int height) {
+		setTitle("Play Chess Funny");
 		setLayout(new BorderLayout());
 		setBackground(Color.WHITE);
 		createMenuBar();
@@ -312,8 +311,19 @@ public class Board extends JFrame implements ActionListener {
 			int choice = JOptionPane.showOptionDialog(null, "Are you really want to play?", "New Game",
 					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, option, option[0]);
 			if (choice == JOptionPane.YES_OPTION) {
-				new BoardController(new ChessBoard(), new Board(600));
-				return;
+				String[] option2 = { "Player vs Player", "Player vs Computer", "Computer vs Computer" };
+				int type = JOptionPane.showOptionDialog(null, "Choose type you want to play", "New Game",
+						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, option2, option2[0]);
+				if (type == JOptionPane.YES_OPTION) {
+					new Player_Player();
+					return;
+				} else if (type == JOptionPane.NO_OPTION) {
+					new Player_Computer();
+					return;
+				} else if (type == JOptionPane.CANCEL_OPTION) {
+					new Computer_Computer().run();
+					return;
+				}
 			}
 		}
 		if (e.getSource() == itemOpen) {
