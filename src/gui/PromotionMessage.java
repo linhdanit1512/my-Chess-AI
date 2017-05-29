@@ -117,11 +117,11 @@ public class PromotionMessage extends JFrame implements ActionListener {
 		pawn.setMove(0);
 		move.setPiecePromotion(pawn);
 		setVisible(false);
-//		control.setPricePromotion(pawn);
-//		control.setFrom(move.getFrom());
-//		control.setCheck(true);
+		control.setPricePromotion(pawn);
+		control.setFrom(move.getFrom());
+		control.setCheck(true);
 //		control.move(move.getTo());
-//		System.out.println(pawn);
+		System.out.println(pawn);
 	}
 
 	public Piece getPiece() {

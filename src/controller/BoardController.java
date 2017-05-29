@@ -24,6 +24,7 @@ import core.Location;
 import core.Player;
 import core.Sound;
 import gui.Board;
+import gui.PromotionMessage;
 import rule.QueenRule;
 
 public class BoardController implements ActionListener {
@@ -134,38 +135,45 @@ public class BoardController implements ActionListener {
 			return;
 		}
 		Move move = new Move(from, to, model.getPieceAt(from), model.getPieceAt(to));
-//		PromotionMessage pro = new PromotionMessage(this, move);
-//		System.out.println(check);
 		if (move.isPromotion()) {
-			move.setPiecePromotion(promotionPiece(move));
-			// if (check == false) {
-			// pro.setVisible(true);
-			// } else {
-			// System.out.println("pricePromotion: " + pricePromotion);
-			// move.setPiecePromotion(pricePromotion);
-			// System.out.println("move.getPiecePromotion()" +
-			// move.getPiecePromotion());
-			// Move m = action.execute(move);
-			// if (m != null) {
-			// System.out.println(model.getPremove());
-			// from = null;
-			// int check = check();
-			// if (check == ChessGoalState.CHECK) {
-			// move.setChess(true);
-			// } else if (check == ChessGoalState.CHECKMATE) {
-			// move.setChessmate(true);
-			// } else if (check == ChessGoalState.DRAW) {
-			// move.setDraw(true);
-			// }
-			// view.validate();
-			// model.printBoard();
-			//
-			// } else {
-			// to = null;
-			// return;
-			// }
-			// }
+//			move.setPiecePromotion(promotionPiece(move));
+			PromotionMessage pro = new PromotionMessage(this, move);
+			// System.out.println(check);
+			if (check == false) {
+				pro.setVisible(true);
+				view.setEnabled(false);
+			} else {
+				view.setEnabled(true);
+				if (pricePromotion != null)
+					move.setPiecePromotion(pricePromotion);
+				else
+					move.setPiecePromotion(promotionPiece(move));
+			}
 		}
+		// }
+		// System.out.println("pricePromotion: " + pricePromotion);
+		// System.out.println("move.getPiecePromotion()" +
+		// move.getPiecePromotion());
+		// Move m = action.execute(move);
+		// if (m != null) {
+		// System.out.println(model.getPremove());
+		// from = null;
+		// int check = check();
+		// if (check == ChessGoalState.CHECK) {
+		// move.setChess(true);
+		// } else if (check == ChessGoalState.CHECKMATE) {
+		// move.setChessmate(true);
+		// } else if (check == ChessGoalState.DRAW) {
+		// move.setDraw(true);
+		// }
+		// view.validate();
+		// model.printBoard();
+		//
+		// } else {
+		// to = null;
+		// return;
+		// }
+		// }
 		// System.out.println("System.out.println(action.push(new Move(new
 		// Location(" + from.getX() + "," + from.getY()
 		// + "), new Location(" + to.getX() + ", " + to.getY() + "))));");
@@ -296,6 +304,10 @@ public class BoardController implements ActionListener {
 
 	public void setPricePromotion(Piece pricePromotion) {
 		this.pricePromotion = pricePromotion;
+	}
+
+	public boolean isEndGame() {
+		return isEndGame;
 	}
 
 }

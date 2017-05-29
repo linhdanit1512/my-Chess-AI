@@ -183,7 +183,10 @@ public abstract class Rule implements Serializable, Observer {
 					}
 					return null;
 				} else {
-					result.addAll(getNormalRule());
+					List<Location> rule = getNormalRule();
+					if (rule != null) {
+						result.addAll(rule);
+					}
 				}
 			}
 		}

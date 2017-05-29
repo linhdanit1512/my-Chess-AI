@@ -10,11 +10,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -39,8 +37,9 @@ public class Board extends JFrame implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 3032726387546045087L;
-	public JPanel pnPlayer1, pnPlayer2, pnBoard;
+	public JPanel pnBoard;
 	public ChessRecord pnRecord;
+	PrisonerPane pnPrisoner;
 	public JButton btnBoard[][];
 	JButton btnRedo, btnUndo;
 	DecoButton create = new DecoButton();
@@ -60,6 +59,11 @@ public class Board extends JFrame implements ActionListener {
 		// setResizable(false);
 		setLocationRelativeTo(null);
 		setVisible(true);
+	}
+
+	private void createPlayerPane() {
+		pnPrisoner = new PrisonerPane("Player", "Computer");
+		add(pnPrisoner, BorderLayout.WEST);
 	}
 
 	JMenuItem itemNew = new JMenuItem("New game");
@@ -151,26 +155,6 @@ public class Board extends JFrame implements ActionListener {
 		getContentPane().add(pnBoard, BorderLayout.CENTER);
 	}
 
-	private void createPlayerPane() {
-		// chua cac quan co tu binh
-		JPanel pnPrisoner = new JPanel();
-		pnPrisoner.setLayout(new BoxLayout(pnPrisoner, BoxLayout.Y_AXIS));
-		pnPrisoner.setMinimumSize(new Dimension(170, getHeight()));
-		pnPrisoner.setPreferredSize(new Dimension(170, getHeight()));
-
-		JLabel lblCom = new JLabel("COMPUTER");
-		pnPlayer1 = new JPanel();
-
-		pnPlayer2 = new JPanel();
-		JLabel lblPeo = new JLabel("YOUR NAME");
-
-		pnPrisoner.add(lblCom);
-		pnPrisoner.add(pnPlayer1);
-		pnPrisoner.add(pnPlayer2);
-		pnPrisoner.add(lblPeo);
-		getContentPane().add(pnPrisoner, BorderLayout.WEST);
-	}
-
 	private void createRecordPane() {
 		pnRecord = new ChessRecord();
 		getContentPane().add(pnRecord, BorderLayout.EAST);
@@ -183,8 +167,6 @@ public class Board extends JFrame implements ActionListener {
 			}
 		}
 		btnBoard[l.getX()][l.getY()].setBorderPainted(true);
-//		btnBoard[l.getX()][l.getY()]
-//				.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED, Color.BLUE, Color.RED));
 		btnBoard[l.getX()][l.getY()].setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createEtchedBorder(EtchedBorder.RAISED, Color.BLUE, Color.RED),
 				BorderFactory.createRaisedBevelBorder()));
@@ -216,7 +198,9 @@ public class Board extends JFrame implements ActionListener {
 			resetBorderIgnore(move.getTo());
 			// thêm 1 bước đi vào trong kì phổ
 			pnRecord.add(new Record(ChessAction.count, player(player), move));
+			pnPrisoner.updatePrisoner(move, 1);
 			setPremove(move);
+			validate();
 			return true;
 		}
 		return false;
@@ -237,6 +221,7 @@ public class Board extends JFrame implements ActionListener {
 			setPremove(premove);
 			// xóa một nước đi trong kì phổ
 			pnRecord.remove();
+			pnPrisoner.updatePrisoner(move, -1);
 			return true;
 		}
 		return false;
@@ -327,7 +312,7 @@ public class Board extends JFrame implements ActionListener {
 			int choice = JOptionPane.showOptionDialog(null, "Are you really want to play?", "New Game",
 					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, option, option[0]);
 			if (choice == JOptionPane.YES_OPTION) {
-				new BoardController(new ChessBoard(), new Board(570));
+				new BoardController(new ChessBoard(), new Board(600));
 				return;
 			}
 		}

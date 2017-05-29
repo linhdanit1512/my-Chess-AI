@@ -281,11 +281,12 @@ public class ChessBoard extends Observable implements Serializable {
 		}
 	}
 
-	private void passant(Move move, Move premove) {
+	private void passant(Move move) {
 		move.setPrisoner(premove.getPieceFrom());
 		setPieceAtLocation(move.getTo(), move.getPieceFrom());
 		getPieceAt(move.getTo()).updateMove();
 		removePiece(premove.getTo());
+		removePiece(move.getFrom());
 	}
 
 	public boolean makeMove(Move move) {
@@ -307,7 +308,7 @@ public class ChessBoard extends Observable implements Serializable {
 					castling(move);
 				} else if (move.passant(premove)) {
 					System.out.println("isPassant");
-					passant(move, premove);
+					passant(move);
 				} else if (!move.isCastlingKing() && !move.isCastlingQueen() && !move.isPassant()
 						&& !move.isPromotion()) {
 					System.out.println("isNormal");

@@ -1,91 +1,38 @@
 package demo;
 
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.Button;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
-public class demo extends JFrame implements MouseMotionListener, MouseListener {
+public class demo extends JPanel {
 
-	Point start, stop;
-	JLabel lbl;
-
-	JPanel pn;
+	protected void makebutton(String name, GridBagLayout gridbag, GridBagConstraints c) {
+		Button button = new Button(name);
+		gridbag.setConstraints(button, c);
+		add(button);
+	}
 
 	public demo() {
-		setLayout(null);
-		// pn = new JPanel();
-		lbl = new JLabel(new ImageIcon("image\\whiteking.png"));
-		add(lbl);
-		addMouseListener(this);
-		addMouseMotionListener(this);
-		setSize(400, 400);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setLocationRelativeTo(null);
-		setVisible(true);
+		GridBagLayout gridbag = new GridBagLayout();
+		GridBagConstraints c = new GridBagConstraints();
+		setLayout(gridbag);
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		makebutton("Button 1", gridbag, c);
+		c.fill = GridBagConstraints.BOTH;
+		makebutton("Button 2", gridbag, c);
 	}
 
-	public static void main(String[] args) {
-		new demo();
+	public static void main(String args[]) {
+		JFrame f = new JFrame();
+		JPanel mgb = new demo();
+		f.add("Center", mgb);
+		f.pack();
+		f.setSize(300, 300);
+		f.setVisible(true);
 	}
-
-	@Override
-	public void mouseDragged(MouseEvent e) {
-		stop = e.getPoint();
-		System.out.println("stop " + stop);
-		int x = (int) (stop.getX());
-		int y = (int) (stop.getY());
-		int w = lbl.getIcon().getIconWidth();
-		int h = lbl.getIcon().getIconHeight();
-		lbl.setBounds(new Rectangle(x-w/2, y-h, w, h));
-		repaint();
-		// add(pn);
-		validate();
-
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		start = e.getPoint();
-		System.out.println("start: " + start);
-
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
 }
