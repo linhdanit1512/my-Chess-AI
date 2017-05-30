@@ -19,7 +19,8 @@ public class Player_Computer {
 		} catch (Exception e) {
 		}
 		model = new ChessBoard();
-		view = new Board(600);
+		view = new Board(570);
 		control = new BoardController(model, view, BoardController.PLAYER_COMPUTER);
+		control.init();
 	}
 }

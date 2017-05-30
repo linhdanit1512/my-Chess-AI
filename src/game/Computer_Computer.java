@@ -19,13 +19,13 @@ public class Computer_Computer implements Runnable {
 		} catch (Exception e) {
 		}
 		model = new ChessBoard();
-		view = new Board(600);
+		view = new Board(570);
 		control = new BoardController(model, view, BoardController.COMPUTER_COMPUTER);
 	}
 
 	@Override
 	public void run() {
-		while (true) {
+		while (!control.isEndGame()) {
 			control.computer_computer();
 		}
 	}

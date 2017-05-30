@@ -117,7 +117,7 @@ public class ChessBoard extends Observable implements Serializable {
 			return;
 		if (piece == null)
 			return;
-		
+
 		int x = location.getX();
 		int y = location.getY();
 		Location tmp = piece.getLocation();
@@ -140,6 +140,14 @@ public class ChessBoard extends Observable implements Serializable {
 		if (location != null)
 			return pieceBoard[location.getX()][location.getY()];
 		return null;
+	}
+
+	public boolean isHasPiece(int x, int y) {
+		if (x >= 0 && x < 8 && y >= 0 && y < 8) {
+			if (pieceBoard[x][y] != null)
+				return true;
+		}
+		return false;
 	}
 
 	/**
@@ -214,6 +222,12 @@ public class ChessBoard extends Observable implements Serializable {
 		measurementsChanged();
 	}
 
+	private void normal(Move move) {
+		setPieceAtLocation(move.getTo(), move.getPieceFrom());
+		getPieceAt(move.getTo()).updateMove();
+		removePiece(move.getFrom());
+	}
+
 	private void undoNormal(Move move) {
 		setPieceAtLocation(move.getFrom(), move.getPieceFrom());
 		if (move.getPrisoner() != null) {
@@ -221,45 +235,21 @@ public class ChessBoard extends Observable implements Serializable {
 		} else {
 			removePiece(move.getTo());
 		}
-	}
-
-	private void undoPromotion(Move move) {
-		removePiece(move.getTo());
-		addPiece(move.getFrom(), move.getPieceFrom());
-	}
-
-	private void undoCastling(Move move) {
-		setPieceAtLocation(move.getFrom(), move.getPieceFrom());
-		removePiece(move.getTo());
-		int x = move.getFrom().getX();
-		if (move.isCastlingQueen()) {
-			setPieceAtLocation(new Location(x, 0), pieceBoard[x][3]);
-			removePiece(new Location(x, 3));
-			pieceBoard[x][0].updateUndoMove();
-		}
-		if (move.isCastlingKing()) {
-			setPieceAtLocation(new Location(x, 7), pieceBoard[x][5]);
-			removePiece(new Location(x, 5));
-			pieceBoard[x][7].updateUndoMove();
-		}
-	}
-
-	private void undoPassant(Move move, Move premove) {
-		setPieceAtLocation(premove.getTo(), move.getPrisoner());
-		setPieceAtLocation(move.getFrom(), move.getPieceFrom());
-		removePiece(move.getTo());
-	}
-
-	private void normal(Move move) {
-		setPieceAtLocation(move.getTo(), move.getPieceFrom());
-		getPieceAt(move.getTo()).updateMove();
-		removePiece(move.getFrom());
+		getPieceAt(move.getFrom()).updateUndoMove();
 	}
 
 	private void promotion(Move move) {
-		System.out.println("promotion board " + move.toStrings());
 		setPieceAtLocation(move.getTo(), move.getPiecePromotion());
 		removePiece(move.getFrom());
+	}
+
+	private void undoPromotion(Move move) {
+		if (move.getPrisoner() != null) {
+			setPieceAtLocation(move.getTo(), move.getPrisoner());
+		} else
+			removePiece(move.getTo());
+		setPieceAtLocation(move.getFrom(), move.getPieceFrom());
+		getPieceAt(move.getFrom()).updateUndoMove();
 	}
 
 	private void castling(Move move) {
@@ -279,6 +269,30 @@ public class ChessBoard extends Observable implements Serializable {
 			getPieceAt(new Location(x, 5)).updateMove();
 			pieceBoard[x][7] = null;
 		}
+	}
+
+	private void undoCastling(Move move) {
+		setPieceAtLocation(move.getFrom(), move.getPieceFrom());
+		getPieceAt(move.getFrom()).updateUndoMove();
+		removePiece(move.getTo());
+		int x = move.getFrom().getX();
+		if (move.isCastlingQueen()) {
+			setPieceAtLocation(new Location(x, 0), pieceBoard[x][3]);
+			removePiece(new Location(x, 3));
+			pieceBoard[x][0].updateUndoMove();
+		}
+		if (move.isCastlingKing()) {
+			setPieceAtLocation(new Location(x, 7), pieceBoard[x][5]);
+			removePiece(new Location(x, 5));
+			pieceBoard[x][7].updateUndoMove();
+		}
+	}
+
+	private void undoPassant(Move move, Move premove) {
+		setPieceAtLocation(premove.getTo(), move.getPrisoner());
+		setPieceAtLocation(move.getFrom(), move.getPieceFrom());
+		removePiece(move.getTo());
+		getPieceAt(move.getFrom()).updateUndoMove();
 	}
 
 	private void passant(Move move) {
@@ -327,24 +341,21 @@ public class ChessBoard extends Observable implements Serializable {
 			return false;
 		if (move.getFrom().equals(move.getTo()))
 			return false;
-		if (move.getPieceFrom().getAlliance() == getPlayer()) {
-			if (move.getPieceFrom().getRule().getRealLocationCanMove().contains(move.getTo())) {
-				if (move.isPromotion()) {
-					undoPromotion(move);
-				} else if (move.isCastlingKing() || move.isCastlingQueen()) {
-					undoCastling(move);
-				} else if (move.passant(premove)) {
-					undoPassant(move, premove);
-				} else if (!move.isCastlingKing() && !move.isCastlingQueen() && !move.isPassant()
-						&& !move.isPromotion()) {
-					undoNormal(move);
-				}
-				getPieceAt(move.getTo()).updateUndoMove();
-				setPremove(premove);
-				return true;
-			}
+		if (move.isPromotion()) {
+			System.out.println("undo promotion");
+			undoPromotion(move);
+		} else if (move.isCastlingKing() || move.isCastlingQueen()) {
+			System.out.println("undo castling");
+			undoCastling(move);
+		} else if (move.isPassant()) {
+			System.out.println("undo passant");
+			undoPassant(move, premove);
+		} else if (!move.isCastlingKing() && !move.isCastlingQueen() && !move.isPassant() && !move.isPromotion()) {
+			System.out.println("undo normal");
+			undoNormal(move);
 		}
-		return false;
+		setPremove(premove);
+		return true;
 	}
 
 	public Move getPremove() {

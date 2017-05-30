@@ -32,12 +32,13 @@ public class ChessAction implements Observer {
 	 */
 	public Move execute(Move move) {
 		if (board.makeMove(move)) {
-			System.out.println("Action "+move.toStrings());
+			System.out.println("Action " + move.toStrings());
 			if (view.makeMove(move, board.getPlayer())) {
 				count++;
 				moves.push(move);
 				board.setPlayer(Player.changePlayer(board.getPlayer()));
 				board.setMeasurements(board.getPlayer(), board.pieceBoard, move);
+				board.printBoard();
 				return move;
 			}
 		}
@@ -50,17 +51,18 @@ public class ChessAction implements Observer {
 	 * @param move
 	 * @return
 	 */
-	public Move restore(Move move) {
+	public Move restore() {
+		System.out.println("moves size" + moves.size());
+		Move move = pop();
 		if (move != null) {
-			if (board.unMakeMove(move, peek())) {
-				if (view.unMakeMove(move, peek())) {
-					count--;
-					undo.push(move);
-					board.setPlayer(Player.changePlayer(board.getPlayer()));
-					board.setMeasurements(board.getPlayer(), board.pieceBoard, peek());
-					return move;
-				}
-			}
+			board.unMakeMove(move, peek());
+			view.unMakeMove(move, peek());
+			count--;
+			undo.push(move);
+			board.setPlayer(Player.changePlayer(board.getPlayer()));
+			board.setMeasurements(board.getPlayer(), board.pieceBoard, peek());
+			board.printBoard();
+			return move;
 		}
 		return null;
 	}
@@ -71,26 +73,24 @@ public class ChessAction implements Observer {
 		if (undo.size() >= 10)
 			return null;
 		else {
-			if (!moves.isEmpty()) {
-				Move move = restore(peek());
-				if (move != null) {
-					return moves.pop();
-				}
-			}
+			return restore();
 		}
-		return null;
 	}
 
 	public Move redo() {
 		if (undo.isEmpty())
 			return null;
 		else {
-			Move move = undo.peek();
-			if (execute(move) != null) {
-				return undo.pop();
-			} else
-				return null;
+			Move move = undo.pop();
+			return execute(move);
 		}
+	}
+
+	public Move pop() {
+		if (moves.isEmpty())
+			return null;
+		else
+			return moves.pop();
 	}
 
 	public Move peek() {

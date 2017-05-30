@@ -63,11 +63,13 @@ public class RecordController implements ActionListener, KeyListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == view.pnRecord.btnRedo) {
-			redo();
+			System.out.println("redo");
+			action.redo();
 			return;
 		}
 		if (e.getSource() == view.pnRecord.btnUndo) {
-			undo();
+			System.out.println("undo");
+			action.undo();
 			return;
 		}
 	}
@@ -76,11 +78,11 @@ public class RecordController implements ActionListener, KeyListener {
 	public void keyPressed(KeyEvent e) {
 		if (e.isControlDown()) {
 			if (e.getKeyCode() == KeyEvent.VK_Z) {
-				undo();
+				action.undo();
 				return;
 			}
 			if (e.getKeyCode() == KeyEvent.VK_Y) {
-				redo();
+				action.redo();
 				return;
 			}
 
@@ -93,7 +95,6 @@ public class RecordController implements ActionListener, KeyListener {
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
 
 	}
 

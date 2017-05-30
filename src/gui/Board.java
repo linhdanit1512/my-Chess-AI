@@ -205,18 +205,26 @@ public class Board extends JFrame implements ActionListener {
 		return false;
 	}
 
+	@SuppressWarnings("unused")
 	public boolean unMakeMove(Move move, Move premove) {
 		if (move != null) {
+			System.out.println("move" + move.toStrings());
+			System.out.println(premove.toStrings());
 			if (move.isPromotion()) {
 				undoPromotion(move);
 			} else if (move.isCastlingKing() ^ move.isCastlingQueen()) {
 				undoCastling(move);
-			} else if (move.passant(premove)) {
-				undoPassant(move);
+			} else if (move.isPassant()) {
+				System.out.println("view passant pre");
+				undoPassant(move, premove);
 			} else if (!move.isCastlingKing() && !move.isCastlingQueen() && !move.isPassant() && !move.isPromotion()) {
 				undoNormal(move);
 			}
-			resetBorderIgnore(premove.getTo());
+			if (premove != null)
+				resetBorderIgnore(premove.getTo());
+			else
+				resetBorder();
+
 			setPremove(premove);
 			// xóa một nước đi trong kì phổ
 			pnRecord.remove();
@@ -227,8 +235,14 @@ public class Board extends JFrame implements ActionListener {
 	}
 
 	private void undoPromotion(Move move) {
-		getPiece(move.getTo()).setIcon(null);
-		getPiece(move.getFrom()).setIcon(new ImageIcon("image\\" + move.getPieceFrom()));
+		System.out.println("promotion " + move.toStrings());
+		if (move.getPrisoner() != null) {
+			getPiece(move.getTo()).setIcon(new ImageIcon("image\\" + move.getPrisoner().getLinkImg()));
+		} else {
+			getPiece(move.getTo()).setIcon(null);
+
+		}
+		getPiece(move.getFrom()).setIcon(new ImageIcon("image\\" + move.getPieceFrom().getLinkImg()));
 	}
 
 	private void undoNormal(Move move) {
@@ -240,7 +254,7 @@ public class Board extends JFrame implements ActionListener {
 		}
 	}
 
-	private void undoPassant(Move move) {
+	private void undoPassant(Move move, Move premove) {
 		getPiece(premove.getTo()).setIcon(new ImageIcon("image\\" + move.getPrisoner().getLinkImg()));
 		getPiece(move.getFrom()).setIcon(new ImageIcon("image\\" + move.getPieceFrom().getLinkImg()));
 		getPiece(move.getTo()).setIcon(null);

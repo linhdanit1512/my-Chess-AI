@@ -15,7 +15,7 @@ public class Player_Player {
 		} catch (Exception e) {
 		}
 		ChessBoard model = new ChessBoard();
-		Board view = new Board(600);
-		new BoardController(model, view, BoardController.PLAYER_PLAYER);
+		Board view = new Board(570);
+		new BoardController(model, view, BoardController.PLAYER_PLAYER).init();
 	}
 }

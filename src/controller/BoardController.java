@@ -46,10 +46,9 @@ public class BoardController implements ActionListener {
 		action = new ChessAction(model, view);
 		this.record = new RecordController(this);
 		this.search = new AlphaBeta();
-		init();
 	}
 
-	void init() {
+	public void init() {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
 				if (model.pieceBoard[i][j] != null) {
@@ -129,7 +128,12 @@ public class BoardController implements ActionListener {
 						to = new Location(i, j);
 						move(to);
 					}
-					Move moveCom = search.alphabeta(model, model.getPlayer(), depth);
+					Move moveCom;
+					if (action.count == 1) {
+						moveCom = new Move(new Location(1, 3), new Location(3, 3), model.getPieceAt(new Location(1, 3)),
+								null);
+					} else
+						moveCom = search.alphabeta(model, model.getPlayer(), depth);
 					click(moveCom.getPieceFrom());
 					move(moveCom.getTo());
 					return;
@@ -139,7 +143,7 @@ public class BoardController implements ActionListener {
 	}
 
 	public void computer_computer() {
-		while (true) {
+		while (!isEndGame) {
 			try {
 				Move m1 = search.alphabeta(model, model.getPlayer(), 5);
 				click(m1.getPieceFrom());
@@ -188,7 +192,6 @@ public class BoardController implements ActionListener {
 			to = null;
 			return;
 		}
-		System.out.println("check: "+ check);
 		Move move = new Move(from, to, model.getPieceAt(from), model.getPieceAt(to));
 		PromotionMessage pro = new PromotionMessage(this, move);
 		if (move.isPromotion()) {
@@ -199,7 +202,7 @@ public class BoardController implements ActionListener {
 				view.setEnabled(true);
 				if (pricePromotion != null)
 					move.setPiecePromotion(pricePromotion);
-				else{
+				else {
 					move.setPiecePromotion(promotionPiece(move));
 				}
 				Move m = action.execute(move);
@@ -215,7 +218,6 @@ public class BoardController implements ActionListener {
 						move.setDraw(true);
 					}
 					view.validate();
-					model.printBoard();
 				} else {
 					to = null;
 					return;
@@ -235,7 +237,6 @@ public class BoardController implements ActionListener {
 					move.setDraw(true);
 				}
 				view.validate();
-				model.printBoard();
 			} else {
 				to = null;
 				return;

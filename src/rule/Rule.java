@@ -210,7 +210,24 @@ public abstract class Rule implements Serializable, Observer {
 			if (board.getKing().containsValue(piece)) {
 				return null;
 			}
-			Location kingLocation = board.getKing().get(piece.getAlliance()).getLocation();
+			Piece king = board.getKing().get(piece.getAlliance());
+			return checkBeetween(piece, king);
+		}
+		return null;
+	}
+
+	/**
+	 * 
+	 * @param piece
+	 * @param pieceAfter
+	 * @return piece : quan co cua doi phuong
+	 */
+	public Piece checkBeetween(Piece piece, Piece pieceAfter) {
+		if (piece.equals(pieceAfter) && piece.getLocation().equals(pieceAfter.getLocation())) {
+			return null;
+		}
+		if (piece != null && pieceAfter != null) {
+			Location afterLocation = pieceAfter.getLocation();
 			// cac quan co cua doi phuong co the chieu toi vi tri cua quan
 			// co piece
 			List<Piece> list = getEnemyControlAtLocation(piece.getLocation(), piece.getAlliance());
@@ -221,9 +238,9 @@ public abstract class Rule implements Serializable, Observer {
 					// tu quan dang xet toi doi phuong thi nghia la quan
 					// dang set nam giua vua va quan cua doi phuong
 
-					if (checkCross(kingLocation, piece.getLocation()) && checkCross(kingLocation, p.getLocation())
+					if (checkCross(afterLocation, piece.getLocation()) && checkCross(afterLocation, p.getLocation())
 							&& checkCross(piece.getLocation(), p.getLocation())) {
-						if (Math.abs(kingLocation.getX() - p.getLocation().getX()) > Math
+						if (Math.abs(afterLocation.getX() - p.getLocation().getX()) > Math
 								.abs(piece.getLocation().getX() - p.getLocation().getX()))
 							if (p.getType() == PieceType.PAWN)
 								continue;
@@ -231,16 +248,16 @@ public abstract class Rule implements Serializable, Observer {
 								return p;
 						else
 							continue;
-					} else if (checkHorizontal(kingLocation, piece.getLocation())
+					} else if (checkHorizontal(afterLocation, piece.getLocation())
 							&& checkHorizontal(piece.getLocation(), p.getLocation())) {
-						if (Math.abs(kingLocation.getY() - p.getLocation().getY()) > Math
+						if (Math.abs(afterLocation.getY() - p.getLocation().getY()) > Math
 								.abs(piece.getLocation().getY() - p.getLocation().getY()))
 							return p;
 						else
 							continue;
-					} else if (checkVertical(kingLocation, piece.getLocation())
+					} else if (checkVertical(afterLocation, piece.getLocation())
 							&& checkVertical(piece.getLocation(), p.getLocation())) {
-						if (Math.abs(kingLocation.getX() - p.getLocation().getX()) > Math
+						if (Math.abs(afterLocation.getX() - p.getLocation().getX()) > Math
 								.abs(piece.getLocation().getX() - p.getLocation().getX()))
 							return p;
 						else
@@ -261,7 +278,19 @@ public abstract class Rule implements Serializable, Observer {
 	public boolean checkCross(Location l1, Location l2) {
 		if (l1.equals(l2))
 			return false;
-		return (Math.abs(l1.getX() - l2.getX()) == Math.abs(l1.getY() - l2.getY()));
+		if (Math.abs(l1.getX() - l2.getX()) == Math.abs(l1.getY() - l2.getY())) {
+			List<Location> list = getDistanceLocation(l1, l2);
+			if (list != null && list.size() > 0) {
+				for (Location l : list) {
+					if (board.getPieceAt(l) != null) {
+						return false;
+					}
+				}
+				return true;
+			}
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -273,7 +302,19 @@ public abstract class Rule implements Serializable, Observer {
 	public boolean checkHorizontal(Location l1, Location l2) {
 		if (l1.equals(l2))
 			return false;
-		return (l1.getX() == l2.getX());
+		if (l1.getX() == l2.getX()) {
+			List<Location> list = getDistanceLocation(l1, l2);
+			if (list != null && list.size() > 0) {
+				for (Location l : list) {
+					if (board.getPieceAt(l) != null) {
+						return false;
+					}
+				}
+				return true;
+			}
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -285,8 +326,22 @@ public abstract class Rule implements Serializable, Observer {
 	public boolean checkVertical(Location l1, Location l2) {
 		if (l1.equals(l2))
 			return false;
-		return l1.getY() == l2.getY();
+		if (l1.getY() == l2.getY()) {
+			List<Location> list = getDistanceLocation(l1, l2);
+			if (list != null && list.size() > 0) {
+				for (Location l : list) {
+					if (board.getPieceAt(l) != null) {
+						return false;
+					}
+				}
+				return true;
+			}
+			return true;
+		}
+		return false;
 	}
+
+
 
 	/**
 	 * 
@@ -300,6 +355,26 @@ public abstract class Rule implements Serializable, Observer {
 	public List<Piece> getEnemyControlAtLocation(Location location, int color) {
 		if (location == null)
 			return null;
+		List<Piece> result = new ArrayList<>();
+		List<Piece> list = getPieceControlAt(location);
+		if (list != null) {
+			for (Piece piece : list) {
+				if (piece.getAlliance() != color) {
+					result.add(piece);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * 
+	 * @param location
+	 * @return lay ra cac quan co dieu khien o co vi tri location(x,y)
+	 */
+	public List<Piece> getPieceControlAt(Location location) {
+		if (location == null)
+			return null;
 		List<Piece> result = new ArrayList<Piece>();
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
@@ -308,10 +383,9 @@ public abstract class Rule implements Serializable, Observer {
 				if (piece != null) {
 					List<Location> list = piece.getRule().getAllLocationControl();
 					if (list != null && !list.isEmpty()) {
+						// neu quan piece co the toi o location thi add vao
 						if (list.contains(location)) {
-							if (piece.getAlliance() != color) {
-								result.add(piece);
-							}
+							result.add(piece);
 						}
 					}
 				}
@@ -370,14 +444,17 @@ public abstract class Rule implements Serializable, Observer {
 	 *            toa do x cua o can toi
 	 * @param paramY:
 	 *            toa do y cua o can toi
-	 * @return: 1: o co can toi trong; 2: o co muon toi la quan khac mau; 3: o
-	 *          muon toi la quan cung mau; 0: khong the toi
+	 * @return: <br>
+	 *          1: o co can toi trong; <br>
+	 *          2: o co muon toi la quan khac mau; <br>
+	 *          3: o muon toi la quan cung mau; <br>
+	 *          0: khong the toi
 	 */
 	public int checkValidTile(int paramX, int paramY) {
 		if (location == null)
 			return 0;
 		// vi tri trung voi quan dang set
-		if (paramX == 0 && paramY == 0)
+		if (location.equals(new Location(paramX, paramY)))
 			return 0;
 		if (paramX >= 0 && paramX < 8 && paramY >= 0 && paramY < 8) {
 			// vi tri can toi trong

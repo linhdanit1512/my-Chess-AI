@@ -140,21 +140,6 @@ public class Piece {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + acronym;
-		result = prime * result + alliance;
-		result = prime * result + ((linkImg == null) ? 0 : linkImg.hashCode());
-		result = prime * result + ((location == null) ? 0 : location.hashCode());
-		result = prime * result + move;
-		result = prime * result + ((rule == null) ? 0 : rule.hashCode());
-		result = prime * result + score;
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		return result;
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
