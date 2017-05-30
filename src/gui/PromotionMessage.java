@@ -35,7 +35,7 @@ public class PromotionMessage extends JFrame implements ActionListener {
 		this.move = move;
 		this.control = control;
 		setLayout(new BorderLayout());
-		JLabel lbl = new JLabel("Chọn quân cờ muốn phong thành");
+		JLabel lbl = new JLabel("Chá»�n quÃ¢n cá»� muá»‘n phong thÃ nh");
 		lbl.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		add(lbl, BorderLayout.NORTH);
 		JPanel pnBody = new JPanel();
@@ -66,7 +66,7 @@ public class PromotionMessage extends JFrame implements ActionListener {
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setResizable(false);
 		setLocationRelativeTo(control.getView());
-		setVisible(true);
+//		setVisible(true);
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -120,7 +120,7 @@ public class PromotionMessage extends JFrame implements ActionListener {
 		control.setPricePromotion(pawn);
 		control.setFrom(move.getFrom());
 		control.setCheck(true);
-//		control.move(move.getTo());
+		control.move(move.getTo());
 		System.out.println(pawn);
 	}
 

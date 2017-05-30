@@ -188,9 +188,10 @@ public class BoardController implements ActionListener {
 			to = null;
 			return;
 		}
+		System.out.println("check: "+ check);
 		Move move = new Move(from, to, model.getPieceAt(from), model.getPieceAt(to));
+		PromotionMessage pro = new PromotionMessage(this, move);
 		if (move.isPromotion()) {
-			PromotionMessage pro = new PromotionMessage(this, move);
 			if (check == false) {
 				pro.setVisible(true);
 				view.setEnabled(false);
@@ -198,27 +199,47 @@ public class BoardController implements ActionListener {
 				view.setEnabled(true);
 				if (pricePromotion != null)
 					move.setPiecePromotion(pricePromotion);
-				else
+				else{
 					move.setPiecePromotion(promotionPiece(move));
+				}
+				Move m = action.execute(move);
+				if (m != null) {
+					System.out.println(model.getPremove());
+					from = null;
+					int check = check();
+					if (check == ChessGoalState.CHECK) {
+						move.setChess(true);
+					} else if (check == ChessGoalState.CHECKMATE) {
+						move.setChessmate(true);
+					} else if (check == ChessGoalState.DRAW) {
+						move.setDraw(true);
+					}
+					view.validate();
+					model.printBoard();
+				} else {
+					to = null;
+					return;
+				}
 			}
-		}
-		Move m = action.execute(move);
-		if (m != null) {
-			System.out.println(model.getPremove());
-			from = null;
-			int check = check();
-			if (check == ChessGoalState.CHECK) {
-				move.setChess(true);
-			} else if (check == ChessGoalState.CHECKMATE) {
-				move.setChessmate(true);
-			} else if (check == ChessGoalState.DRAW) {
-				move.setDraw(true);
-			}
-			view.validate();
-			model.printBoard();
 		} else {
-			to = null;
-			return;
+			Move m = action.execute(move);
+			if (m != null) {
+				System.out.println(model.getPremove());
+				from = null;
+				int check = check();
+				if (check == ChessGoalState.CHECK) {
+					move.setChess(true);
+				} else if (check == ChessGoalState.CHECKMATE) {
+					move.setChessmate(true);
+				} else if (check == ChessGoalState.DRAW) {
+					move.setDraw(true);
+				}
+				view.validate();
+				model.printBoard();
+			} else {
+				to = null;
+				return;
+			}
 		}
 	}
 
@@ -230,10 +251,10 @@ public class BoardController implements ActionListener {
 	}
 
 	public int check() {
-		// kiểm tra vua có bị chiếu hay ko
+		// kiá»ƒm tra vua cÃ³ bá»‹ chiáº¿u hay ko
 		if (ChessGoalState.checkmate(model)) {
 			Piece king = model.getKing().get(getPlayer());
-			// lấy tọa độ của vua
+			// láº¥y tá»�a Ä‘á»™ cá»§a vua
 			Location l = king.getLocation();
 			List<Piece> tmp = new ArrayList<>();
 			List<Piece> enemy = king.getRule().getEnemyControlAtLocation(l, king.getAlliance());
