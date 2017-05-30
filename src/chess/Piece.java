@@ -1,9 +1,12 @@
 package chess;
 
+import java.io.Serializable;
+
 import core.Location;
 import rule.Rule;
 
-public class Piece {
+public class Piece implements Serializable{
+	private static final long serialVersionUID = -7950750501781031191L;
 	Location location;
 	PieceType type;
 	char acronym;

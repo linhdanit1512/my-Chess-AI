@@ -6,10 +6,12 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.LineBorder;
 
 import action.Move;
 import chess.Alliance;
@@ -139,11 +141,20 @@ public class PrisonerPane extends JPanel {
 		pnPrisoner.add(pnPlayerBlack);
 		pnPrisoner.add(pnPlayerWhite);
 		pnPrisoner.add(lblPlayer1);
+		lblPlayer1.setBorder(new LineBorder(Color.ORANGE, 3));
+		lblPlayer2.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 		add(pnPrisoner, BorderLayout.WEST);
 	}
 
-	public void updatePrisoner(Move move, int quantity) {
+	public void updatePrisonerPane(Move move, int quantity) {
 		if (move != null) {
+			if(move.getPieceFrom().getAlliance()==Alliance.BLACK){
+				lblPlayer1.setBorder(new LineBorder(Color.ORANGE, 3));
+				lblPlayer2.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+			}else{
+				lblPlayer2.setBorder(new LineBorder(Color.ORANGE, 3));
+				lblPlayer1.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+			}
 			Piece piece = move.getPrisoner();
 			if (piece != null) {
 				if (piece.getAlliance() == Alliance.BLACK) {

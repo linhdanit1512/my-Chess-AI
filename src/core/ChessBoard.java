@@ -315,17 +315,13 @@ public class ChessBoard extends Observable implements Serializable {
 		if (move.getPieceFrom().getAlliance() == getPlayer()) {
 			if (move.getPieceFrom().getRule().getRealLocationCanMove().contains(move.getTo())) {
 				if (move.isPromotion()) {
-					System.out.println("isPromotion");
 					promotion(move);
 				} else if (move.isCastlingKing() || move.isCastlingQueen()) {
-					System.out.println("isCastling");
 					castling(move);
 				} else if (move.passant(premove)) {
-					System.out.println("isPassant");
 					passant(move);
 				} else if (!move.isCastlingKing() && !move.isCastlingQueen() && !move.isPassant()
 						&& !move.isPromotion()) {
-					System.out.println("isNormal");
 					normal(move);
 				}
 				return true;
@@ -342,16 +338,12 @@ public class ChessBoard extends Observable implements Serializable {
 		if (move.getFrom().equals(move.getTo()))
 			return false;
 		if (move.isPromotion()) {
-			System.out.println("undo promotion");
 			undoPromotion(move);
 		} else if (move.isCastlingKing() || move.isCastlingQueen()) {
-			System.out.println("undo castling");
 			undoCastling(move);
 		} else if (move.isPassant()) {
-			System.out.println("undo passant");
 			undoPassant(move, premove);
 		} else if (!move.isCastlingKing() && !move.isCastlingQueen() && !move.isPassant() && !move.isPromotion()) {
-			System.out.println("undo normal");
 			undoNormal(move);
 		}
 		setPremove(premove);

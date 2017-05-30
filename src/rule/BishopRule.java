@@ -26,44 +26,48 @@ public class BishopRule extends Rule {
 		int y = location.getY();
 		// kiem tra cheo tren trai
 		for (int i = 1; i <= x; i++) {
-			if (checkValidTile( x - i, y - i) == 0 || checkValidTile( x - i, y - i) == 3) {
+			int c = checkValidTile(x - i, y - i);
+			if (c == 0 || c == 3) {
 				break;
-			} else if (checkValidTile( x - i, y - i) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x - i, y - i));
-			} else if (checkValidTile( x - i, y - i) == 2) {
+			} else if (c == 2) {
 				listLocation.add(new Location(x - i, y - i));
 				break;
 			}
 		}
 		// kiem tra cheo tren phai
 		for (int i = 1; i <= x; i++) {
-			if (checkValidTile( x - i, y + i) == 0 || checkValidTile( x - i, y + i) == 3) {
+			int c = checkValidTile(x - i, y + i);
+			if (c == 0 || c == 3) {
 				break;
-			} else if (checkValidTile( x - i, y + i) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x - i, y + i));
-			} else if (checkValidTile( x - i, y + i) == 2) {
+			} else if (c == 2) {
 				listLocation.add(new Location(x - i, y + i));
 				break;
 			}
 		}
 		// kiem tra cheo duoi trai
 		for (int i = 1; i < 8 - x; i++) {
-			if (checkValidTile( x + i, y - i) == 0 || checkValidTile( x + i, y - i) == 3) {
+			int c = checkValidTile(x + i, y - i);
+			if (c == 0 || c == 3) {
 				break;
-			} else if (checkValidTile( x + i, y - i) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x + i, y - i));
-			} else if (checkValidTile( x + i, y - i) == 2) {
+			} else if (c == 2) {
 				listLocation.add(new Location(x + i, y - i));
 				break;
 			}
 		}
 		// kiem tra cheo duoi phai
 		for (int i = 1; i < 8 - x; i++) {
-			if (checkValidTile( x + i, y + i) == 0 || checkValidTile( x + i, y + i) == 3) {
+			int c = checkValidTile(x + i, y + i);
+			if (c == 0 || c == 3) {
 				break;
-			} else if (checkValidTile( x + i, y + i) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x + i, y + i));
-			} else if (checkValidTile( x + i, y + i) == 2) {
+			} else if (c == 2) {
 				listLocation.add(new Location(x + i, y + i));
 				break;
 			}
@@ -78,44 +82,48 @@ public class BishopRule extends Rule {
 		int y = location.getY();
 		// kiem tra cheo tren trai
 		for (int i = 1; i <= x; i++) {
-			if (checkValidTile( x - i, y - i) == 0) {
+			int c = checkValidTile(x - i, y - i);
+			if (c == 0) {
 				break;
-			} else if (checkValidTile( x - i, y - i) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x - i, y - i));
-			} else if (checkValidTile( x - i, y - i) == 2 || checkValidTile( x - i, y - i) == 3) {
+			} else if (c == 2 || c == 3) {
 				listLocation.add(new Location(x - i, y - i));
 				break;
 			}
 		}
 		// kiem tra cheo tren phai
 		for (int i = 1; i <= x; i++) {
-			if (checkValidTile( x - i, y + i) == 0) {
+			int c = checkValidTile(x - i, y + i);
+			if (c == 0) {
 				break;
-			} else if (checkValidTile( x - i, y + i) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x - i, y + i));
-			} else if (checkValidTile( x - i, y + i) == 2 || checkValidTile( x - i, y + i) == 3) {
+			} else if (c == 2 || c == 3) {
 				listLocation.add(new Location(x - i, y + i));
 				break;
 			}
 		}
 		// kiem tra cheo duoi trai
 		for (int i = 1; i < 8 - x; i++) {
-			if (checkValidTile( x + i, y - i) == 0) {
+			int c = checkValidTile(x + i, y - i);
+			if (c == 0) {
 				break;
-			} else if (checkValidTile( x + i, y - i) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x + i, y - i));
-			} else if (checkValidTile( x + i, y - i) == 2 || checkValidTile( x + i, y - i) == 3) {
+			} else if (c == 2 || c == 3) {
 				listLocation.add(new Location(x + i, y - i));
 				break;
 			}
 		}
 		// kiem tra cheo duoi phai
 		for (int i = 1; i < 8 - x; i++) {
-			if (checkValidTile( x + i, y + i) == 0) {
+			int c = checkValidTile(x + i, y + i);
+			if (c == 0) {
 				break;
-			} else if (checkValidTile( x + i, y + i) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x + i, y + i));
-			} else if (checkValidTile( x + i, y + i) == 2 || checkValidTile( x + i, y + i) == 3) {
+			} else if (c == 2 || c == 3) {
 				listLocation.add(new Location(x + i, y + i));
 				break;
 			}

@@ -120,13 +120,9 @@ public class Board extends JFrame implements ActionListener {
 		setJMenuBar(menubar);
 	}
 
+	@SuppressWarnings("serial")
 	private void createBoard(int height) {
 		pnBoard = new JPanel() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1844582857812420107L;
-
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				g.drawImage(create.resizeImage(height, height, "image\\chessboard2.png").getImage(), 0, 0, null);
@@ -182,22 +178,18 @@ public class Board extends JFrame implements ActionListener {
 	public boolean makeMove(Move move, int player) {
 		if (move != null) {
 			if (move.isPromotion()) {
-				System.out.println("view isPromotion");
 				promotion(move);
 			} else if (move.isCastlingKing() || move.isCastlingQueen()) {
-				System.out.println("view isCastling");
 				castling(move);
 			} else if (move.isPassant()) {
-				System.out.println("view isPassant");
 				passant(move);
 			} else if (!move.isCastlingKing() && !move.isCastlingQueen() && !move.isPassant() && !move.isPromotion()) {
-				System.out.println("view isNormal");
 				normal(move);
 			}
 			resetBorderIgnore(move.getTo());
 			// thêm 1 bước đi vào trong kì phổ
 			pnRecord.add(new Record(ChessAction.count, player(player), move));
-			pnPrisoner.updatePrisoner(move, 1);
+			pnPrisoner.updatePrisonerPane(move, 1);
 			setPremove(move);
 			validate();
 			return true;
@@ -205,17 +197,13 @@ public class Board extends JFrame implements ActionListener {
 		return false;
 	}
 
-	@SuppressWarnings("unused")
 	public boolean unMakeMove(Move move, Move premove) {
 		if (move != null) {
-			System.out.println("move" + move.toStrings());
-			System.out.println(premove.toStrings());
 			if (move.isPromotion()) {
 				undoPromotion(move);
 			} else if (move.isCastlingKing() ^ move.isCastlingQueen()) {
 				undoCastling(move);
 			} else if (move.isPassant()) {
-				System.out.println("view passant pre");
 				undoPassant(move, premove);
 			} else if (!move.isCastlingKing() && !move.isCastlingQueen() && !move.isPassant() && !move.isPromotion()) {
 				undoNormal(move);
@@ -228,14 +216,13 @@ public class Board extends JFrame implements ActionListener {
 			setPremove(premove);
 			// xóa một nước đi trong kì phổ
 			pnRecord.remove();
-			pnPrisoner.updatePrisoner(move, -1);
+			pnPrisoner.updatePrisonerPane(move, -1);
 			return true;
 		}
 		return false;
 	}
 
 	private void undoPromotion(Move move) {
-		System.out.println("promotion " + move.toStrings());
 		if (move.getPrisoner() != null) {
 			getPiece(move.getTo()).setIcon(new ImageIcon("image\\" + move.getPrisoner().getLinkImg()));
 		} else {

@@ -19,7 +19,7 @@ public class Home extends JFrame implements ActionListener {
 	JButton btnCom_Com, btnPlayer_Com, btnPlayer_Player;
 
 	public Home() {
-		setTitle("Memory Game");
+		setTitle("Chess Funny");
 		setLayout(null);
 		setContentPane(new JLabel(new ImageIcon("image\\background.jpg")));
 
@@ -27,8 +27,9 @@ public class Home extends JFrame implements ActionListener {
 		pnInMain.add(createPane());
 		pnInMain.setOpaque(false);
 		add(pnInMain);
-		pnInMain.setBounds(200, 60, 500, 600);
-		setSize(800, 600);
+		pnInMain.setBounds(120, 40, 400, 600);
+		setSize(650, 450);
+		setResizable(false);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setVisible(true);
@@ -41,15 +42,20 @@ public class Home extends JFrame implements ActionListener {
 	DecoButton deco = new DecoButton();
 
 	public JPanel createPane() {
-		Font font = new Font("Lucida Handwriting", Font.BOLD | Font.ITALIC, 22);
+		Font font = new Font("Agency FB", Font.BOLD | Font.ITALIC, 22);
 		Color color = new Color(0, 0, 0);
 
-		ImageIcon icon = new ImageIcon(("image\\btn.png"));
+		ImageIcon icon = new ImageIcon("image\\btn.png");
+		ImageIcon rollicon = new ImageIcon("image\\btnhover.png");
 
 		btnCom_Com = deco.createButton(icon, "Computer vs Computer", font, color);
 		btnPlayer_Com = deco.createButton(icon, "Player vs Computer", font, color);
 		btnPlayer_Player = deco.createButton(icon, "Player vs Player", font, color);
-
+		
+		btnCom_Com.setRolloverIcon(rollicon);
+		btnPlayer_Com.setRolloverIcon(rollicon);
+		btnPlayer_Player.setRolloverIcon(rollicon);
+		
 		btnCom_Com.addActionListener(this);
 		btnPlayer_Com.addActionListener(this);
 		btnPlayer_Player.addActionListener(this);

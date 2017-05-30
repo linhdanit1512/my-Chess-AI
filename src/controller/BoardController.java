@@ -43,9 +43,10 @@ public class BoardController implements ActionListener {
 		this.model = model;
 		this.view = view;
 		this.type = type;
+		
 		action = new ChessAction(model, view);
-		this.record = new RecordController(this);
-		this.search = new AlphaBeta();
+		record = new RecordController(this);
+		search = new AlphaBeta();
 	}
 
 	public void init() {
@@ -105,6 +106,7 @@ public class BoardController implements ActionListener {
 		}
 	}
 
+	@SuppressWarnings("static-access")
 	public void player_computer(ActionEvent e) {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {

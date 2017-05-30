@@ -28,48 +28,52 @@ public class RookRule extends Rule implements Observer {
 		int y = location.getY();
 		// kiem tra phia ben trai
 		for (int i = 1; i <= y; i++) {
-			if (checkValidTile( x, y - i) == 0 || checkValidTile( x, y - i) == 3) {
+			int c = checkValidTile(x, y - i);
+			if (c == 0 || c == 3) {
 				break;
-			} else if (checkValidTile( x, y - i) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x, y - i));
 				continue;
-			} else if (checkValidTile( x, y - i) == 2) {
+			} else if (c == 2) {
 				listLocation.add(new Location(x, y - i));
 				break;
 			}
 		}
 		// kiem tra phia ben phai
 		for (int i = 1; i < 8 - y; i++) {
-			if (checkValidTile( x, y + i) == 0 || checkValidTile( x, y + i) == 3) {
+			int c = checkValidTile(x, y + i);
+			if (c == 0 || c == 3) {
 				break;
-			} else if (checkValidTile( x, y + i) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x, y + i));
 				continue;
-			} else if (checkValidTile( x, y + i) == 2) {
+			} else if (c == 2) {
 				listLocation.add(new Location(x, y + i));
 				break;
 			}
 		}
 		// kiem tra ben tren
 		for (int i = 1; i <= x; i++) {
-			if (checkValidTile( x - i, y) == 0 || checkValidTile( x - i, y) == 3) {
+			int c = checkValidTile(x - i, y);
+			if (c == 0 || c == 3) {
 				break;
-			} else if (checkValidTile( x - i, y) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x - i, y));
 				continue;
-			} else if (checkValidTile( x - i, y) == 2) {
+			} else if (c == 2) {
 				listLocation.add(new Location(x - i, y));
 				break;
 			}
 		}
 		// kiem tra phia duoi
 		for (int i = 1; i < 8 - x; i++) {
-			if (checkValidTile( x + i, y) == 0 || checkValidTile( x + i, y) == 3) {
+			int c = checkValidTile(x + i, y);
+			if (c == 0 || c == 3) {
 				break;
-			} else if (checkValidTile( x + i, y) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x + i, y));
 				continue;
-			} else if (checkValidTile( x + i, y) == 2) {
+			} else if (c == 2) {
 				listLocation.add(new Location(x + i, y));
 				break;
 			}
@@ -84,48 +88,52 @@ public class RookRule extends Rule implements Observer {
 		int y = location.getY();
 		// kiem tra phia ben trai
 		for (int i = 1; i <= y; i++) {
-			if (checkValidTile( x, y - i) == 0) {
+			int c = checkValidTile(x, y - i);
+			if (c == 0) {
 				break;
-			} else if (checkValidTile( x, y - i) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x, y - i));
 				continue;
-			} else if (checkValidTile( x, y - i) == 2 || checkValidTile( x, y - i) == 3) {
+			} else if (c == 2 || c == 3) {
 				listLocation.add(new Location(x, y - i));
 				break;
 			}
 		}
 		// kiem tra phia ben phai
 		for (int i = 1; i < 8 - y; i++) {
-			if (checkValidTile( x, y + i) == 0) {
+			int c = checkValidTile(x, y + i);
+			if (c == 0) {
 				break;
-			} else if (checkValidTile( x, y + i) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x, y + i));
 				continue;
-			} else if (checkValidTile( x, y + i) == 2 || checkValidTile( x, y + i) == 3) {
+			} else if (c == 2 || c == 3) {
 				listLocation.add(new Location(x, y + i));
 				break;
 			}
 		}
 		// kiem tra ben tren
 		for (int i = 1; i <= x; i++) {
-			if (checkValidTile( x - i, y) == 0) {
+			int c = checkValidTile(x - i, y);
+			if (c == 0) {
 				break;
-			} else if (checkValidTile( x - i, y) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x - i, y));
 				continue;
-			} else if (checkValidTile( x - i, y) == 2 || checkValidTile( x - i, y) == 3) {
+			} else if (c == 2 || c == 3) {
 				listLocation.add(new Location(x - i, y));
 				break;
 			}
 		}
 		// kiem tra phia duoi
 		for (int i = 1; i < 8 - x; i++) {
-			if (checkValidTile( x + i, y) == 0) {
+			int c = checkValidTile(x + i, y);
+			if (c == 0) {
 				break;
-			} else if (checkValidTile( x + i, y) == 1) {
+			} else if (c == 1) {
 				listLocation.add(new Location(x + i, y));
 				continue;
-			} else if (checkValidTile( x + i, y) == 2 || checkValidTile( x + i, y) == 3) {
+			} else if (c == 2 || c == 3) {
 				listLocation.add(new Location(x + i, y));
 				break;
 			}

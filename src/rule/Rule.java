@@ -45,19 +45,16 @@ public abstract class Rule implements Serializable, Observer {
 	 * @param location:
 	 *            vi tri dang xet
 	 * @return neu vi tri nay co quan co thi no se tim cac nuoc di co ban co the
-	 *         di cua quan co tai vi tri do.
-	 * 
+	 *         di cua quan co tai vi tri do. <br>
 	 *         phuong thuc nay duoc su dung chung cho cac truong hop thong
 	 *         thuong, va duoc su dung nhu cac nuoc di cua doi phuong (dung so
 	 *         sanh), tuy cac nuoc doi phuong co the ko di duoc, nhung nhung~ o
-	 *         nay van la nhung~ o ma no dang khong che.
-	 * 
+	 *         nay van la nhung~ o ma no dang khong che. <br>
 	 *         vi du nhu truong hop quan 2 quan vua, 2 quan vua ko the dung canh
 	 *         nhau, nhung do la do do la vung khong che cua quan kia, nen mac
 	 *         du ca 2 quan ko the an nhau nhung can phai lay cac nuoc di thong
 	 *         thuong de kiem tra viec chung ko the den nhung o ma quan kia
-	 *         khong che.
-	 * 
+	 *         khong che. <br>
 	 *         hay truong hop 1 quan xe dang che cho quan vua cua minh, no khong
 	 *         the di chuyen ra ngoai duong ma quan kia dang chieu, nhung quan
 	 *         vua cung khong the di chuyen toi o ma quan xe nay dang khong che.
@@ -70,7 +67,7 @@ public abstract class Rule implements Serializable, Observer {
 	 * 
 	 * @param player:
 	 *            toi luot cua nguoi choi player
-	 * @return: tra ve 1 map luu tru cac quan co va vi tri cua no co the di
+	 * @return tra ve 1 map luu tru cac quan co va vi tri cua no co the di
 	 *          khien vua het bi chieu.
 	 * 
 	 * 
@@ -341,8 +338,6 @@ public abstract class Rule implements Serializable, Observer {
 		return false;
 	}
 
-
-
 	/**
 	 * 
 	 * @param location:
@@ -398,8 +393,7 @@ public abstract class Rule implements Serializable, Observer {
 	 * 
 	 * @param from
 	 * @param to
-	 * @return lay cac vi tri giua 2 quan co (co duong chieu).
-	 * 
+	 * @return lay cac vi tri giua 2 quan co (co duong chieu). <br>
 	 *         truong hơp quan ma (Knight) khong bi can duong boi cac quan co
 	 *         nen khong can tim kiem
 	 */
