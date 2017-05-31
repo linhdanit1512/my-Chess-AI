@@ -63,17 +63,18 @@ public class Eval implements Observer {
 						/*
 						 * neu quan co cung mau
 						 */
-						if (p.getAlliance() == myPiece.getAlliance()) {
-							/*
-							 * neu nhu quan dang set nam giua 2 quan ta va dich
-							 * thi diem so tinh = quan dang set - quan doi
-							 * phuong
-							 */
-							Piece ene = p.getRule().checkBeetween(myPiece, p);
-							if (ene != null) {
-								score += -myPiece.getScore() + ene.getScore();
+						if (p != null)
+							if (p.getAlliance() == myPiece.getAlliance()) {
+								/*
+								 * neu nhu quan dang set nam giua 2 quan ta va
+								 * dich thi diem so tinh = quan dang set - quan
+								 * doi phuong
+								 */
+								Piece ene = p.getRule().checkBeetween(myPiece, p);
+								if (ene != null) {
+									score += -myPiece.getScore() + ene.getScore();
+								}
 							}
-						}
 					}
 				}
 
@@ -98,7 +99,9 @@ public class Eval implements Observer {
 		 * điểm cơ bản của quân cờ tại vị trí location
 		 */
 		if (board.getPieceAt(location) != null) {
-			evalua += board.getPieceAt(location).getScore();
+
+			if (board.getPieceAt(location).getAlliance() != alliance)
+				evalua += evalPiece(board.getPieceAt(location));
 		}
 		/*
 		 * danh sách các quân cờ đang khống chế vị trí location
@@ -153,12 +156,14 @@ public class Eval implements Observer {
 			 * 
 			 */
 			else {
-				for (int i = 0; i < l1.size() - 1; i++) {
-					evalua -= evalPiece(l1.get(i)) + l1.get(i).getScore();
-					evalua += evalPiece(l2.get(i)) + l2.get(i).getScore();
-				}
-				for (int i = l1.size() - 1; i < l2.size(); i++) {
-					evalua -= evalPiece(l2.get(i)) + l2.get(i).getScore();
+				if (l1.size() > 0) {
+					for (int i = 0; i < l1.size() - 1; i++) {
+						evalua -= evalPiece(l1.get(i)) + l1.get(i).getScore();
+						evalua += evalPiece(l2.get(i)) + l2.get(i).getScore();
+					}
+					for (int i = l1.size() - 1; i < l2.size(); i++) {
+						evalua -= evalPiece(l2.get(i)) + l2.get(i).getScore();
+					}
 				}
 			}
 		}
@@ -167,12 +172,14 @@ public class Eval implements Observer {
 		 */
 		else if (l1.size() > l2.size()) {
 			if (board.getPlayer() == alliance) {
-				for (int i = 0; i < l2.size() - 1; i++) {
-					evalua -= evalPiece(l1.get(i)) + l1.get(i).getScore();
-					evalua += evalPiece(l2.get(i)) + l2.get(i).getScore();
-				}
-				for (int i = l2.size() - 1; i < l2.size(); i++) {
-					evalua += evalPiece(l2.get(i)) + l2.get(i).getScore();
+				if (l2.size() > 0) {
+					for (int i = 0; i < l2.size() - 1; i++) {
+						evalua -= evalPiece(l1.get(i)) + l1.get(i).getScore();
+						evalua += evalPiece(l2.get(i)) + l2.get(i).getScore();
+					}
+					for (int i = l2.size() - 1; i < l2.size(); i++) {
+						evalua += evalPiece(l2.get(i)) + l2.get(i).getScore();
+					}
 				}
 			} else {
 				for (int i = 0; i < l2.size(); i++) {
@@ -189,10 +196,13 @@ public class Eval implements Observer {
 				evalua -= evalPiece(l1.get(i)) + l1.get(i).getScore();
 				evalua += evalPiece(l2.get(i)) + l2.get(i).getScore();
 			}
-			if (board.getPlayer() == alliance) {
-				evalua += evalPiece(l1.get(l1.size() - 1)) + l1.get(l1.size() - 1).getScore();
-			} else {
-				evalua -= evalPiece(l2.get(l2.size() - 1)) + l2.get(l2.size() - 1).getScore();
+			if (l2.size() > 0) {
+				if (board.getPlayer() == alliance) {
+
+					evalua += evalPiece(l1.get(l1.size() - 1)) + l1.get(l1.size() - 1).getScore();
+				} else {
+					evalua -= evalPiece(l2.get(l2.size() - 1)) + l2.get(l2.size() - 1).getScore();
+				}
 			}
 		}
 		/**
@@ -244,7 +254,8 @@ public class Eval implements Observer {
 		int y = location.getY();
 		// kiem tra phia ben trai
 		for (int i = 1; i <= y; i++) {
-			if (board.isHasPiece(x, y - i)) {
+			Location l = new Location(x, y - i);
+			if (board.getPieceAt(l) != null) {
 				list.add(board.getPieceAt(new Location(x, y - i)));
 				break;
 			}

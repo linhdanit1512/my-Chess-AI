@@ -41,9 +41,9 @@ public class ChessAction implements Observer {
 				moves.push(move);
 				board.setPlayer(Player.changePlayer(board.getPlayer()));
 				board.setMeasurements(board.getPlayer(), board.pieceBoard, move);
-				board.printBoard();
-				System.out.println("----------------------------");
-				eval.board.printBoard();
+				// board.printBoard();
+				// System.out.println("-------------------------------");
+				// eval.print(board.getPlayer());
 				return move;
 			}
 		}
