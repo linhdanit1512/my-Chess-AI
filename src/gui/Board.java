@@ -322,7 +322,7 @@ public class Board extends JFrame implements ActionListener {
 					new Player_Computer();
 					return;
 				} else if (type == JOptionPane.CANCEL_OPTION) {
-					new Computer_Computer().run();
+					new Computer_Computer();
 					return;
 				}
 			}

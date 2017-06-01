@@ -4,13 +4,14 @@ import action.Move;
 import controller.BoardController;
 import core.ChessBoard;
 import core.Location;
+import game.Home;
 import gui.Board;
 
 public class testGoal {
 	public static void main(String[] args) {
 		Board view = new Board(600);
 		ChessBoard model = new ChessBoard();
-		BoardController control = new BoardController(model, view, BoardController.COMPUTER_COMPUTER);
+		BoardController control = new BoardController(model, view, Home.COMPUTER_COMPUTER);
 
 		Move move1 = new Move(new Location(7, 1), new Location(5, 0), model.getPieceAt(new Location(7, 1)), null);
 		Move move2 = new Move(new Location(0, 1), new Location(2, 0), model.getPieceAt(new Location(0, 1)), null);

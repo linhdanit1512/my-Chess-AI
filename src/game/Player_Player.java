@@ -16,6 +16,6 @@ public class Player_Player {
 		}
 		ChessBoard model = new ChessBoard();
 		Board view = new Board(570);
-		new BoardController(model, view, BoardController.PLAYER_PLAYER).init();
+		new BoardController(model, view, Home.PLAYER_PLAYER);
 	}
 }

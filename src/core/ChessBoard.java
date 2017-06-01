@@ -1,7 +1,9 @@
 package core;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 
@@ -358,4 +360,22 @@ public class ChessBoard extends Observable implements Serializable {
 		this.premove = premove;
 	}
 
+	public List<Move> getAllMovesForCurrentPlayer(int alli) {
+		List<Move> tmp = new ArrayList<Move>();
+		for (int i = 0; i < pieceBoard.length; i++) {
+			for (int j = 0; j < pieceBoard[0].length; j++) {
+				Piece pieceTmp = pieceBoard[i][j];
+				if (pieceTmp != null) {
+					if (pieceTmp.getAlliance() == alli) {
+						List<Location> listLoca = pieceTmp.getRule().getRealLocationCanMove();
+						for (Location l : listLoca) {
+							Move move = new Move(pieceTmp.getLocation(), l, pieceTmp, getPieceAt(l));
+							tmp.add(move);
+						}
+					}
+				}
+			}
+		}
+		return tmp;
+	}
 }

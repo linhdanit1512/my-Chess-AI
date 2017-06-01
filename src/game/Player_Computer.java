@@ -20,7 +20,6 @@ public class Player_Computer {
 		}
 		model = new ChessBoard();
 		view = new Board(570);
-		control = new BoardController(model, view, BoardController.PLAYER_COMPUTER);
-		control.init();
+		control = new BoardController(model, view, Home.PLAYER_COMPUTER);
 	}
 }

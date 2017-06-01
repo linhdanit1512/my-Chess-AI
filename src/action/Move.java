@@ -14,6 +14,7 @@ public class Move {
 	private Piece pieceFrom;
 	private Piece prisoner;
 	private boolean isCastlingQueen, isCastlingKing, isPromotion, isPassant, isChessmate, isChess, isDraw;
+	private int score;
 
 	public Move(Location from, Location to, Piece pieceFrom, Piece prisoner) {
 		super();
@@ -154,6 +155,7 @@ public class Move {
 
 	public String toStrings() {
 		StringBuilder builder = new StringBuilder();
+		builder.append("Score: " + score + "\t");
 		builder.append("Move [from=");
 		builder.append(from);
 		builder.append(", to=");
@@ -294,6 +296,14 @@ public class Move {
 
 	public void setDraw(boolean isDraw) {
 		this.isDraw = isDraw;
+	}
+
+	public int getScore() {
+		return score;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
 	}
 
 }

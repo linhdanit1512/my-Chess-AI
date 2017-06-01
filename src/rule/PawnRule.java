@@ -93,7 +93,6 @@ public class PawnRule extends Rule {
 								if (pieceLeft.getAlliance() != premove.getPieceFrom().getAlliance()) {
 									if (pieceLeft.getType() == PieceType.PAWN) {
 										Location loca = new Location(x + param, y);
-										System.out.println("left location: " + left);
 										return loca;
 									}
 								}
@@ -108,7 +107,6 @@ public class PawnRule extends Rule {
 								if (pieceRight.getAlliance() != premove.getPieceFrom().getAlliance()) {
 									if (pieceRight.getType() == PieceType.PAWN) {
 										Location loca = new Location(x + param, y);
-										System.out.println("right location: " + right);
 										return loca;
 									}
 								}

@@ -22,20 +22,18 @@ import core.ChessGoalState;
 import core.Location;
 import core.Player;
 import core.Sound;
+import game.Home;
 import gui.Board;
 import gui.PromotionMessage;
 import rule.QueenRule;
 
 public class BoardController implements ActionListener {
-	public static final int PLAYER_PLAYER = 1000;
-	public static final int PLAYER_COMPUTER = 2000;
-	public static final int COMPUTER_COMPUTER = 3000;
 	private ChessBoard model;
 	private Board view;
 	private ChessAction action;
 	RecordController record;
 	AlphaBeta search;
-	int depth = 5;
+	int depth = 1;
 	int type;
 
 	public BoardController(ChessBoard model, Board view, int type) {
@@ -43,10 +41,11 @@ public class BoardController implements ActionListener {
 		this.model = model;
 		this.view = view;
 		this.type = type;
-		
+
 		action = new ChessAction(model, view);
 		record = new RecordController(this);
 		search = new AlphaBeta();
+		init();
 	}
 
 	public void init() {
@@ -70,9 +69,9 @@ public class BoardController implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (!isEndGame) {
-			if (type == PLAYER_COMPUTER) {
+			if (type == Home.PLAYER_COMPUTER) {
 				player_computer(e);
-			} else if (type == PLAYER_PLAYER) {
+			} else if (type == Home.PLAYER_PLAYER) {
 				player_player(e);
 			}
 		}
@@ -106,7 +105,6 @@ public class BoardController implements ActionListener {
 		}
 	}
 
-	@SuppressWarnings("static-access")
 	public void player_computer(ActionEvent e) {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
@@ -130,15 +128,19 @@ public class BoardController implements ActionListener {
 						to = new Location(i, j);
 						move(to);
 					}
-					Move moveCom;
-					if (action.count == 1) {
-						moveCom = new Move(new Location(1, 3), new Location(3, 3), model.getPieceAt(new Location(1, 3)),
-								null);
-					} else
-						moveCom = search.alphabeta(model, model.getPlayer(), depth);
-					click(moveCom.getPieceFrom());
-					move(moveCom.getTo());
-					return;
+					view.validate();
+					view.repaint();
+					if (!isEndGame) {
+						view.pnBoard.setEnabled(false);
+						// Move moveCom = train.bestMove();
+						Move moveCom = search.getBestMove(action, model, depth);
+						click(moveCom.getPieceFrom());
+						move(moveCom.getTo());
+						view.pnBoard.setEnabled(true);
+						view.validate();
+						view.repaint();
+						return;
+					}
 				}
 			}
 		}
@@ -147,22 +149,26 @@ public class BoardController implements ActionListener {
 	public void computer_computer() {
 		while (!isEndGame) {
 			try {
-				Move m1 = search.alphabeta(model, model.getPlayer(), 5);
-				click(m1.getPieceFrom());
-				Thread.sleep(500);
-				move(m1.getTo());
-
-				Move m2 = search.alphabeta(model, model.getPlayer(), 5);
-				click(m2.getPieceFrom());
-				Thread.sleep(500);
-				move(m2.getTo());
-			} catch (InterruptedException e) {
+				Move m1 = search.getBestMove(action, model, depth);
+				action.execute(m1);
+				int check = check();
+				if (check == ChessGoalState.CHECK) {
+					m1.setChess(true);
+				} else if (check == ChessGoalState.CHECKMATE) {
+					m1.setChessmate(true);
+				} else if (check == ChessGoalState.DRAW) {
+					m1.setDraw(true);
+				}
+				view.validate();
+				view.repaint();
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
 	public void click(Piece piece) {
+		// traning.print();
 		if (piece != null) {
 			if (piece.getAlliance() == model.getPlayer()) {
 				view.resetBorderIgnore(piece.getLocation());
@@ -209,7 +215,6 @@ public class BoardController implements ActionListener {
 				}
 				Move m = action.execute(move);
 				if (m != null) {
-					System.out.println(model.getPremove());
 					from = null;
 					int check = check();
 					if (check == ChessGoalState.CHECK) {
@@ -228,7 +233,6 @@ public class BoardController implements ActionListener {
 		} else {
 			Move m = action.execute(move);
 			if (m != null) {
-				System.out.println(model.getPremove());
 				from = null;
 				int check = check();
 				if (check == ChessGoalState.CHECK) {
@@ -254,10 +258,12 @@ public class BoardController implements ActionListener {
 	}
 
 	public int check() {
-		// kiá»ƒm tra vua cÃ³ bá»‹ chiáº¿u hay ko
+		/*
+		 * kiểm tra vua có bị chiếu hay không
+		 */
 		if (ChessGoalState.checkmate(model)) {
 			Piece king = model.getKing().get(getPlayer());
-			// láº¥y tá»�a Ä‘á»™ cá»§a vua
+			// lấy tọa độ của vua
 			Location l = king.getLocation();
 			List<Piece> tmp = new ArrayList<>();
 			List<Piece> enemy = king.getRule().getEnemyControlAtLocation(l, king.getAlliance());
@@ -286,8 +292,8 @@ public class BoardController implements ActionListener {
 						view.btnBoard[i][j].removeActionListener(this);
 					}
 				}
-				view.pnRecord.btnRedo.removeActionListener(record);
-				view.pnRecord.btnUndo.removeActionListener(record);
+//				view.pnRecord.btnRedo.removeActionListener(record);
+//				view.pnRecord.btnUndo.removeActionListener(record);
 				JOptionPane.showMessageDialog(null, message, "End game message", JOptionPane.INFORMATION_MESSAGE, null);
 				return ChessGoalState.CHECKMATE;
 			}

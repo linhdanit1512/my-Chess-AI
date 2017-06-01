@@ -4,7 +4,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Stack;
 
-import ai.Eval;
 import core.ChessBoard;
 import core.Player;
 import gui.Board;
@@ -14,14 +13,12 @@ public class ChessAction implements Observer {
 	Observable ob;
 	public ChessBoard board;
 	public Board view;
-	Eval eval;
 	public static int count = 1;
 
 	public ChessAction(Observable ob, Board view) {
 		super();
 		this.ob = ob;
 		this.view = view;
-		eval = new Eval(ob);
 		ob.addObserver(this);
 		if (ob instanceof ChessBoard)
 			this.board = (ChessBoard) ob;
@@ -35,15 +32,11 @@ public class ChessAction implements Observer {
 	 */
 	public Move execute(Move move) {
 		if (board.makeMove(move)) {
-			System.out.println("Action " + move.toStrings());
 			if (view.makeMove(move, board.getPlayer())) {
 				count++;
 				moves.push(move);
 				board.setPlayer(Player.changePlayer(board.getPlayer()));
 				board.setMeasurements(board.getPlayer(), board.pieceBoard, move);
-				// board.printBoard();
-				// System.out.println("-------------------------------");
-				// eval.print(board.getPlayer());
 				return move;
 			}
 		}
@@ -75,11 +68,11 @@ public class ChessAction implements Observer {
 	Stack<Move> undo = new Stack<Move>();
 
 	public Move undo() {
-		if (undo.size() >= 10)
-			return null;
-		else {
+//		if (undo.size() >= 10)
+//			return null;
+//		else {
 			return restore();
-		}
+//		}
 	}
 
 	public Move redo() {

@@ -7,7 +7,7 @@ import controller.BoardController;
 import core.ChessBoard;
 import gui.Board;
 
-public class Computer_Computer implements Runnable {
+public class Computer_Computer {
 	ChessBoard model;
 	Board view;
 	BoardController control;
@@ -20,14 +20,11 @@ public class Computer_Computer implements Runnable {
 		}
 		model = new ChessBoard();
 		view = new Board(570);
-		control = new BoardController(model, view, BoardController.COMPUTER_COMPUTER);
-	}
-
-	@Override
-	public void run() {
+		control = new BoardController(model, view, Home.COMPUTER_COMPUTER);
 		while (!control.isEndGame()) {
 			control.computer_computer();
 		}
+
 	}
 
 }

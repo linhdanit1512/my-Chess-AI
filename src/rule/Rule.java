@@ -67,8 +67,8 @@ public abstract class Rule implements Serializable, Observer {
 	 * 
 	 * @param player:
 	 *            toi luot cua nguoi choi player
-	 * @return tra ve 1 map luu tru cac quan co va vi tri cua no co the di
-	 *          khien vua het bi chieu.
+	 * @return tra ve 1 map luu tru cac quan co va vi tri cua no co the di khien
+	 *         vua het bi chieu.
 	 * 
 	 * 
 	 * 
@@ -268,6 +268,54 @@ public abstract class Rule implements Serializable, Observer {
 
 	/**
 	 * 
+	 * @param piece
+	 * @param pieceAfter
+	 * @return piece : quan co cua doi phuong
+	 */
+	public Piece checkBeetween(Location location, Piece pieceAfter, int player) {
+		if (location == null || pieceAfter == null)
+			return null;
+		Location afterLocation = pieceAfter.getLocation();
+		// cac quan co cua doi phuong co the chieu toi vi tri cua quan
+		// co piece
+		List<Piece> list = getEnemyControlAtLocation(location, player);
+		if (list != null && !list.isEmpty()) {
+			for (Piece p : list) {
+
+				// neu khoang cach tu vua toi doi phuong > khoang cach
+				// tu quan dang xet toi doi phuong thi nghia la quan
+				// dang set nam giua vua va quan cua doi phuong
+
+				if (checkCross(afterLocation, location) && checkCross(afterLocation, p.getLocation())
+						&& checkCross(location, p.getLocation())) {
+					if (Math.abs(afterLocation.getX() - p.getLocation().getX()) > Math
+							.abs(location.getX() - p.getLocation().getX()))
+						if (p.getType() == PieceType.PAWN)
+							continue;
+						else
+							return p;
+					else
+						continue;
+				} else if (checkHorizontal(afterLocation, location) && checkHorizontal(location, p.getLocation())) {
+					if (Math.abs(afterLocation.getY() - p.getLocation().getY()) > Math
+							.abs(location.getY() - p.getLocation().getY()))
+						return p;
+					else
+						continue;
+				} else if (checkVertical(afterLocation, location) && checkVertical(location, p.getLocation())) {
+					if (Math.abs(afterLocation.getX() - p.getLocation().getX()) > Math
+							.abs(location.getX() - p.getLocation().getX()))
+						return p;
+					else
+						continue;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 
 	 * @param l1
 	 * @param l2
 	 * @return l1 va l2 nam tren cung 1 duong cheo
@@ -336,6 +384,79 @@ public abstract class Rule implements Serializable, Observer {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * 
+	 * @param location
+	 * @return các quân cờ mà tại ô location có thể chiếu tới theo chiều ngang,
+	 *         dọc , chéo
+	 */
+	public List<Piece> getPiecesDependOnLocation(Location location) {
+		if (location == null)
+			return null;
+		List<Piece> list = new ArrayList<>();
+		int x = location.getX();
+		int y = location.getY();
+		// kiem tra phia ben trai
+		for (int i = 1; i <= y; i++) {
+			Location l = new Location(x, y - i);
+			if (board.getPieceAt(l) != null) {
+				list.add(board.getPieceAt(new Location(x, y - i)));
+				break;
+			}
+		}
+		// kiem tra phia ben phai
+		for (int i = 1; i < 8 - y; i++) {
+			if (board.isHasPiece(x, y + i)) {
+				list.add(board.getPieceAt(new Location(x, y + i)));
+				break;
+			}
+		}
+		// kiem tra ben tren
+		for (int i = 1; i <= x; i++) {
+			if (board.isHasPiece(x - i, y)) {
+				list.add(board.getPieceAt(new Location(x - i, y)));
+				break;
+			}
+		}
+		// kiem tra phia duoi
+		for (int i = 1; i < 8 - x; i++) {
+			if (board.isHasPiece(x + i, y)) {
+				list.add(board.getPieceAt(new Location(x + i, y)));
+				break;
+			}
+		}
+
+		// kiem tra cheo tren trai
+		for (int i = 1; i <= x; i++) {
+			if (board.isHasPiece(x - i, y - i)) {
+				list.add(board.getPieceAt(new Location(x - i, y - y)));
+				break;
+			}
+		}
+		// kiem tra cheo tren phai
+		for (int i = 1; i <= x; i++) {
+			if (board.isHasPiece(x - i, y + i)) {
+				list.add(board.getPieceAt(new Location(x - i, y + i)));
+				break;
+			}
+		}
+		// kiem tra cheo duoi trai
+		for (int i = 1; i < 8 - x; i++) {
+			if (board.isHasPiece(x + i, y - i)) {
+				list.add(board.getPieceAt(new Location(x + i, y - i)));
+				break;
+			}
+		}
+		// kiem tra cheo duoi phai
+		for (int i = 1; i < 8 - x; i++) {
+			if (board.isHasPiece(x + i, y + i)) {
+				list.add(board.getPieceAt(new Location(x + i, y + i)));
+				break;
+			}
+		}
+		return list;
 	}
 
 	/**
